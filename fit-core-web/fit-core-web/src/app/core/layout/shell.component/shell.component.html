@@ -1,0 +1,105 @@
+<mat-sidenav-container class="shell">
+
+  <!-- ── Sidenav ─────────────────────────────────────────────────────────── -->
+  <mat-sidenav
+    [class.sidenav--collapsed]="!sidenavOpen()"
+    [opened]="sidenavOpen()"
+    class="sidenav"
+    mode="side"
+  >
+    <!-- Logo / wordmark -->
+    <div class="sidenav__brand">
+      <div class="sidenav__logo">
+        <span class="sidenav__logo-icon">G</span>
+      </div>
+      @if (sidenavOpen()) {
+        <span class="sidenav__wordmark">GymOS</span>
+      }
+    </div>
+
+    <mat-divider />
+
+    <!-- Nav links -->
+    <nav class="sidenav__nav">
+      @for (item of navItems(); track item.route) {
+        <a
+          [matTooltip]="sidenavOpen() ? '' : item.label"
+          [routerLink]="item.route"
+          class="sidenav__link"
+          matTooltipPosition="right"
+          routerLinkActive="sidenav__link--active"
+        >
+          <mat-icon class="sidenav__link-icon">{{ item.icon }}</mat-icon>
+          @if (sidenavOpen()) {
+            <span class="sidenav__link-label">{{ item.label }}</span>
+          }
+        </a>
+      }
+    </nav>
+
+    <!-- Role badge at bottom -->
+    <div class="sidenav__role">
+      <span [class.chip--accent]="role() === 'coach'" [class.chip--primary]="role() === 'manager'" class="chip">
+        <mat-icon
+          style="font-size:14px;width:14px;height:14px;">{{ role() === 'manager' ? 'manage_accounts' : 'sports' }}</mat-icon>
+        @if (sidenavOpen()) {
+          {{ role() | titlecase }}
+        }
+      </span>
+    </div>
+  </mat-sidenav>
+
+  <!-- ── Main area ───────────────────────────────────────────────────────── -->
+  <mat-sidenav-content class="shell__content">
+
+    <!-- Topbar -->
+    <mat-toolbar class="topbar">
+      <button (click)="toggleSidenav()" class="topbar__menu-btn" mat-icon-button>
+        <mat-icon>{{ sidenavOpen() ? 'menu_open' : 'menu' }}</mat-icon>
+      </button>
+
+      <span class="topbar__spacer"></span>
+
+      <!-- Role switcher (demo) -->
+      <div class="topbar__role-switcher">
+        <span class="topbar__role-label">Role:</span>
+        <button [matMenuTriggerFor]="roleMenu" class="topbar__role-btn" mat-stroked-button>
+          {{ role() | titlecase }}
+          <mat-icon iconPositionEnd>expand_more</mat-icon>
+        </button>
+        <mat-menu #roleMenu>
+          <button (click)="switchRole('manager')" mat-menu-item>
+            <mat-icon>manage_accounts</mat-icon>
+            Manager
+          </button>
+          <button (click)="switchRole('coach')" mat-menu-item>
+            <mat-icon>sports</mat-icon>
+            Coach
+          </button>
+        </mat-menu>
+      </div>
+
+      <!-- Avatar / user menu -->
+      <button [matMenuTriggerFor]="userMenu" class="topbar__avatar" mat-icon-button>
+        <span class="avatar">{{ initials() }}</span>
+      </button>
+      <mat-menu #userMenu>
+        <div class="user-menu-header">
+          <strong>{{ fullName() }}</strong>
+          <small>{{ user()?.email }}</small>
+        </div>
+        <mat-divider />
+        <button (click)="logout()" mat-menu-item>
+          <mat-icon>logout</mat-icon>
+          Log out
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+
+    <!-- Page content -->
+    <main class="shell__page">
+      <router-outlet />
+    </main>
+
+  </mat-sidenav-content>
+</mat-sidenav-container>

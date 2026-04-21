@@ -1,0 +1,104 @@
+<div class="page-container">
+
+  @if (!coach()) {
+    <div class="not-found">
+      <mat-icon>person_off</mat-icon>
+      <p>Coach not found.</p>
+      <a mat-stroked-button routerLink="/coaches">Back to Coaches</a>
+    </div>
+  } @else {
+
+    <!-- Header -->
+    <div class="page-header detail-header">
+      <a mat-icon-button routerLink="/coaches" class="back-btn">
+        <mat-icon>arrow_back</mat-icon>
+      </a>
+      <div class="detail-header__avatar">{{ initials() }}</div>
+      <div class="detail-header__info">
+        <h1>{{ coach()!.firstName }} {{ coach()!.lastName }}</h1>
+        <div class="detail-header__chips">
+          <span class="chip chip--primary">
+            <mat-icon style="font-size:15px;width:15px;height:15px">{{ specializationIcon(coach()!.specialization) }}</mat-icon>
+            {{ coach()!.specialization }}
+          </span>
+          <span class="chip chip--neutral">Coach</span>
+        </div>
+      </div>
+      <a mat-stroked-button [routerLink]="['/coach-calendar', coach()!.id]" class="calendar-btn">
+        <mat-icon>calendar_month</mat-icon>
+        View Calendar
+      </a>
+    </div>
+
+    <div class="detail-grid">
+
+      <!-- Info card -->
+      <app-section-card title="Contact Information" icon="person">
+        <app-info-row icon="mail" label="Email" [value]="coach()!.email" />
+        <app-info-row icon="phone" label="Phone" [value]="coach()!.phoneNumber" />
+        <app-info-row icon="sports" label="Specialization" [value]="coach()!.specialization" />
+        <app-info-row icon="badge" label="Coach ID" [value]="coach()!.id" />
+      </app-section-card>
+
+      <!-- Stats -->
+      <div class="stat-row">
+        <div class="mini-stat">
+          <span class="mini-stat__value">{{ personal().length }}</span>
+          <span class="mini-stat__label">Personal Sessions</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-stat__value">{{ group().length }}</span>
+          <span class="mini-stat__label">Group Sessions</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-stat__value">{{ personal().length + group().length }}</span>
+          <span class="mini-stat__label">Total Sessions</span>
+        </div>
+      </div>
+
+      <!-- Upcoming personal sessions -->
+      <app-section-card title="Personal Sessions" icon="person_pin">
+        @if (personal().length === 0) {
+          <p class="empty-text">No personal sessions scheduled.</p>
+        } @else {
+          <ul class="session-list">
+            @for (s of personal(); track s.id) {
+              <li class="session-row">
+                <div class="session-row__time">
+                  <span>{{ s.startTime | date:'EEE, MMM d' }}</span>
+                  <span class="session-row__hour">{{ s.startTime | date:'HH:mm' }}</span>
+                </div>
+                <div class="session-row__name">{{ s.name }}</div>
+                <span class="chip chip--primary">Personal</span>
+              </li>
+            }
+          </ul>
+        }
+      </app-section-card>
+
+      <!-- Group sessions -->
+      <app-section-card title="Group Sessions" icon="groups">
+        @if (group().length === 0) {
+          <p class="empty-text">No group sessions scheduled.</p>
+        } @else {
+          <ul class="session-list">
+            @for (s of group(); track s.id) {
+              <li class="session-row">
+                <div class="session-row__time">
+                  <span>{{ s.startTime | date:'EEE, MMM d' }}</span>
+                  <span class="session-row__hour">{{ s.startTime | date:'HH:mm' }}</span>
+                </div>
+                <div class="session-row__name">
+                  {{ s.name }}
+                  <span class="session-row__cap">{{ s.enrolledClientIds.length }}/{{ s.capacity }}</span>
+                </div>
+                <span class="chip chip--accent">Group</span>
+              </li>
+            }
+          </ul>
+        }
+      </app-section-card>
+
+    </div>
+  }
+</div>

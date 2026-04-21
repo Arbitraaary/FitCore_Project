@@ -1,0 +1,105 @@
+<div class="page-container">
+  <div class="page-header">
+    <button mat-icon-button (click)="cancel()" class="back-btn">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1>Register Coach</h1>
+      <p>Add a new coach to the location</p>
+    </div>
+  </div>
+
+  @if (success()) {
+    <div class="success-banner">
+      <mat-icon>check_circle</mat-icon>
+      Coach registered successfully! Redirecting…
+    </div>
+  }
+
+  <div class="form-layout">
+    <mat-card class="form-card">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>First Name</mat-label>
+            <mat-icon matPrefix>person_outline</mat-icon>
+            <input matInput formControlName="firstName" />
+            @if (form.get('firstName')?.hasError('required') && form.get('firstName')?.touched) {
+              <mat-error>First name is required</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Last Name</mat-label>
+            <mat-icon matPrefix>person_outline</mat-icon>
+            <input matInput formControlName="lastName" />
+            @if (form.get('lastName')?.hasError('required') && form.get('lastName')?.touched) {
+              <mat-error>Last name is required</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <mat-icon matPrefix>mail_outline</mat-icon>
+          <input matInput type="email" formControlName="email" />
+          @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
+            <mat-error>Email is required</mat-error>
+          } @else if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
+            <mat-error>Enter a valid email</mat-error>
+          } @else if (form.get('email')?.hasError('emailTaken')) {
+            <mat-error>This email is already registered</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Phone Number</mat-label>
+          <mat-icon matPrefix>phone</mat-icon>
+          <input matInput formControlName="phoneNumber" placeholder="+380..." />
+          @if (form.get('phoneNumber')?.hasError('required') && form.get('phoneNumber')?.touched) {
+            <mat-error>Phone number is required</mat-error>
+          } @else if (form.get('phoneNumber')?.hasError('pattern') && form.get('phoneNumber')?.touched) {
+            <mat-error>Enter a valid phone number</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Specialization</mat-label>
+          <mat-icon matPrefix>sports</mat-icon>
+          <mat-select formControlName="specialization">
+            @for (s of specializations; track s) {
+              <mat-option [value]="s">{{ s }}</mat-option>
+            }
+          </mat-select>
+          @if (form.get('specialization')?.hasError('required') && form.get('specialization')?.touched) {
+            <mat-error>Specialization is required</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-stroked-button type="button" (click)="cancel()">Cancel</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="loading()">
+            @if (loading()) { <mat-spinner diameter="22" /> }
+            @else { Register Coach }
+          </button>
+        </div>
+
+      </form>
+    </mat-card>
+
+    <!-- Side hint card -->
+    <aside class="hint-card">
+      <mat-icon class="hint-card__icon">info_outline</mat-icon>
+      <h3>Credentials</h3>
+      <p>The coach will log in using their registered email. Default password is <code>coach123</code> — they can change it after first login.</p>
+      <mat-divider style="margin: 18px 0" />
+      <h3>Specializations</h3>
+      <ul>
+        <li><strong>Box</strong> — Boxing and combat sports</li>
+        <li><strong>Karate</strong> — Traditional martial arts</li>
+        <li><strong>Swim</strong> — Swimming and aquatics</li>
+      </ul>
+    </aside>
+  </div>
+</div>

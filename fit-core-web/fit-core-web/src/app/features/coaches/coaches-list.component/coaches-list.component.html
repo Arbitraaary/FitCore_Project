@@ -1,0 +1,52 @@
+<div class="page-container">
+  <div class="page-header list-header">
+    <div>
+      <h1>Coaches</h1>
+      <p>{{ coaches().length }} coach{{ coaches().length !== 1 ? 'es' : '' }} at this location</p>
+    </div>
+    <a color="primary" mat-raised-button routerLink="/coaches/register">
+      <mat-icon>person_add</mat-icon>
+      Register Coach
+    </a>
+  </div>
+
+  <!-- Search -->
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-label>Search coaches</mat-label>
+    <mat-icon matPrefix>search</mat-icon>
+    <input (ngModelChange)="search.set($event)" [ngModel]="search()" matInput
+           placeholder="Name, email or specialization…" />
+  </mat-form-field>
+
+  @if (coaches().length === 0) {
+    <div class="empty-state">
+      <mat-icon>fitness_center</mat-icon>
+      <p>No coaches found</p>
+    </div>
+  } @else {
+    <div class="coaches-grid">
+      @for (coach of coaches(); track coach.id) {
+        <a [routerLink]="['/coaches', coach.id]" class="coach-card">
+          <div class="coach-card__avatar">{{ initials(coach.firstName, coach.lastName) }}</div>
+          <div class="coach-card__body">
+            <span class="coach-card__name">{{ coach.firstName }} {{ coach.lastName }}</span>
+            <span class="coach-card__email">{{ coach.email }}</span>
+            <span class="coach-card__phone">{{ coach.phoneNumber }}</span>
+          </div>
+          <div class="coach-card__meta">
+            <span class="chip chip--primary">
+              <mat-icon
+                style="font-size:15px;width:15px;height:15px">{{ specializationIcon(coach.specialization) }}</mat-icon>
+              {{ coach.specialization }}
+            </span>
+            <span class="coach-card__sessions">
+              <mat-icon>event</mat-icon>
+              {{ sessionCount(coach.id) }} sessions
+            </span>
+          </div>
+          <mat-icon class="coach-card__arrow">chevron_right</mat-icon>
+        </a>
+      }
+    </div>
+  }
+</div>

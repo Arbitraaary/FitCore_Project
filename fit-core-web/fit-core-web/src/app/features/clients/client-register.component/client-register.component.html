@@ -1,0 +1,88 @@
+<div class="page-container">
+  <div class="page-header">
+    <button (click)="cancel()" mat-icon-button>
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1>Register Client</h1>
+      <p>Add a new client to the location</p>
+    </div>
+  </div>
+
+  @if (success()) {
+    <div class="success-banner">
+      <mat-icon>check_circle</mat-icon>
+      Client registered successfully! Redirecting…
+    </div>
+  }
+
+  <div class="form-layout">
+    <mat-card class="form-card">
+      <form (ngSubmit)="onSubmit()" [formGroup]="form" novalidate>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>First Name</mat-label>
+            <mat-icon matPrefix>person_outline</mat-icon>
+            <input formControlName="firstName" matInput />
+            @if (form.get('firstName')?.hasError('required') && form.get('firstName')?.touched) {
+              <mat-error>First name is required</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Last Name</mat-label>
+            <mat-icon matPrefix>person_outline</mat-icon>
+            <input formControlName="lastName" matInput />
+            @if (form.get('lastName')?.hasError('required') && form.get('lastName')?.touched) {
+              <mat-error>Last name is required</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <mat-icon matPrefix>mail_outline</mat-icon>
+          <input formControlName="email" matInput type="email" />
+          @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
+            <mat-error>Email is required</mat-error>
+          } @else if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
+            <mat-error>Enter a valid email</mat-error>
+          } @else if (form.get('email')?.hasError('emailTaken')) {
+            <mat-error>This email is already registered</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Phone Number</mat-label>
+          <mat-icon matPrefix>phone</mat-icon>
+          <input formControlName="phoneNumber" matInput placeholder="+380..." />
+          @if (form.get('phoneNumber')?.hasError('required') && form.get('phoneNumber')?.touched) {
+            <mat-error>Phone number is required</mat-error>
+          } @else if (form.get('phoneNumber')?.hasError('pattern') && form.get('phoneNumber')?.touched) {
+            <mat-error>Enter a valid phone number</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button (click)="cancel()" mat-stroked-button type="button">Cancel</button>
+          <button [disabled]="loading()" color="primary" mat-raised-button type="submit">
+            @if (loading()) {
+              <mat-spinner diameter="22" />
+            } @else {
+              Register Client
+            }
+          </button>
+        </div>
+
+      </form>
+    </mat-card>
+
+    <aside class="hint-card">
+      <mat-icon class="hint-card__icon">info_outline</mat-icon>
+      <h3>After Registration</h3>
+      <p>Once registered, you can assign a membership and enroll the client in personal or group training sessions from
+        their profile page.</p>
+    </aside>
+  </div>
+</div>

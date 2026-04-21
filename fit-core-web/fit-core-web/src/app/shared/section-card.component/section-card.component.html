@@ -1,0 +1,15 @@
+<div class="section-card">
+  <div class="section-card__header">
+    @if (icon()) {
+      <mat-icon class="section-card__icon">{{ icon() }}</mat-icon>
+    }
+    <h3 class="section-card__title">{{ title() }}</h3>
+    <div class="section-card__actions">
+      <ng-content select="[actions]" />
+    </div>
+  </div>
+  <mat-divider />
+  <div class="section-card__body">
+    <ng-content />
+  </div>
+</div>

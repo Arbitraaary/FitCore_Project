@@ -1,0 +1,47 @@
+<div class="page-container">
+  <div class="page-header list-header">
+    <div>
+      <h1>Clients</h1>
+      <p>{{ clients().length }} client{{ clients().length !== 1 ? 's' : '' }} at this location</p>
+    </div>
+    <a color="primary" mat-raised-button routerLink="/clients/register">
+      <mat-icon>group_add</mat-icon>
+      Register Client
+    </a>
+  </div>
+
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-label>Search clients</mat-label>
+    <mat-icon matPrefix>search</mat-icon>
+    <input (ngModelChange)="search.set($event)" [ngModel]="search()" matInput placeholder="Name or email…" />
+  </mat-form-field>
+
+  @if (clients().length === 0) {
+    <div class="empty-state">
+      <mat-icon>group_off</mat-icon>
+      <p>No clients found</p>
+    </div>
+  } @else {
+    <div class="clients-list">
+      @for (client of clients(); track client.id) {
+        @let membership = activeMembership(client.id);
+        <a [routerLink]="['/clients', client.id]" class="client-row">
+          <div class="client-row__avatar">{{ initials(client.firstName, client.lastName) }}</div>
+          <div class="client-row__body">
+            <span class="client-row__name">{{ client.firstName }} {{ client.lastName }}</span>
+            <span class="client-row__email">{{ client.email }}</span>
+          </div>
+          <span class="client-row__phone">{{ client.phoneNumber }}</span>
+          <div class="client-row__badge">
+            @if (membership) {
+              <span class="chip chip--success">{{ membershipName(membership.membershipTypeId) }}</span>
+            } @else {
+              <span class="chip chip--neutral">No membership</span>
+            }
+          </div>
+          <mat-icon class="client-row__arrow">chevron_right</mat-icon>
+        </a>
+      }
+    </div>
+  }
+</div>

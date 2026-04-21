@@ -1,0 +1,45 @@
+<div class="dialog">
+  <div class="dialog__header">
+    <mat-icon class="dialog__icon">card_membership</mat-icon>
+    <h2 mat-dialog-title>Assign Membership</h2>
+    <button (click)="close()" class="dialog__close" mat-icon-button>
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content>
+    @if (success()) {
+      <div class="success-msg">
+        <mat-icon>check_circle</mat-icon>
+        Membership assigned!
+      </div>
+    } @else {
+      <p class="dialog__subtitle">Choose a membership plan to assign to this client.</p>
+
+      <mat-radio-group (ngModelChange)="selected.set($event)" [ngModel]="selected()" class="type-list">
+        @for (t of types; track t.id) {
+          <label [class.type-card--selected]="selected() === t.id" class="type-card">
+            <mat-radio-button [value]="t.id" />
+            <div class="type-card__body">
+              <span class="type-card__name">{{ t.name }}</span>
+              <span class="type-card__desc">{{ t.description }}</span>
+              <div class="type-card__meta">
+                <span class="chip chip--neutral">{{ t.duration }} days</span>
+                <span class="type-card__price">₴{{ t.price }}</span>
+              </div>
+            </div>
+          </label>
+        }
+      </mat-radio-group>
+    }
+  </mat-dialog-content>
+
+  @if (!success()) {
+    <mat-dialog-actions align="end">
+      <button (click)="close()" mat-stroked-button>Cancel</button>
+      <button (click)="assign()" [disabled]="!selected()" color="primary" mat-raised-button>
+        Assign Membership
+      </button>
+    </mat-dialog-actions>
+  }
+</div>

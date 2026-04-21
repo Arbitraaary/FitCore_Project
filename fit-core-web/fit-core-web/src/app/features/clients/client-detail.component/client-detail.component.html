@@ -1,0 +1,115 @@
+<div class="page-container">
+
+  @if (!client()) {
+    <div class="not-found">
+      <mat-icon>person_off</mat-icon>
+      <p>Client not found.</p>
+      <a mat-stroked-button routerLink="/clients">Back to Clients</a>
+    </div>
+  } @else {
+
+    <!-- Header -->
+    <div class="page-header detail-header">
+      <a mat-icon-button routerLink="/clients">
+        <mat-icon>arrow_back</mat-icon>
+      </a>
+      <div class="detail-header__avatar">{{ initials() }}</div>
+      <div class="detail-header__info">
+        <h1>{{ client()!.firstName }} {{ client()!.lastName }}</h1>
+        <div class="detail-header__chips">
+          @if (activeMem()) {
+            <span class="chip chip--success">
+              <mat-icon style="font-size:15px;width:15px;height:15px">card_membership</mat-icon>
+              {{ membershipName(activeMem()!.membershipTypeId) }}
+            </span>
+          } @else {
+            <span class="chip chip--neutral">No active membership</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+
+      <!-- Contact info -->
+      <app-section-card icon="person" title="Contact Information">
+        <app-info-row [value]="client()!.email" icon="mail" label="Email" />
+        <app-info-row [value]="client()!.phoneNumber" icon="phone" label="Phone" />
+        <app-info-row [value]="client()!.id" icon="badge" label="Client ID" />
+      </app-section-card>
+
+      <!-- Membership -->
+      <app-section-card icon="card_membership" title="Memberships">
+        <button (click)="openAssignMembership()" actions mat-stroked-button>
+          <mat-icon>add</mat-icon>
+          Assign
+        </button>
+
+        @if (memberships().length === 0) {
+          <p class="empty-text">No memberships assigned yet.</p>
+        } @else {
+          <ul class="membership-list">
+            @for (m of memberships(); track m.id) {
+              <li class="membership-row">
+                <div class="membership-row__body">
+                  <span class="membership-row__name">{{ membershipName(m.membershipTypeId) }}</span>
+                  <span class="membership-row__dates">{{ m.startDate }} → {{ m.endDate }}</span>
+                </div>
+                <span [class]="statusClass(membershipSvc.resolveStatus(m))" class="chip">
+                  {{ membershipSvc.resolveStatus(m) }}
+                </span>
+              </li>
+            }
+          </ul>
+        }
+      </app-section-card>
+
+      <!-- Personal sessions -->
+      <app-section-card icon="person_pin" title="Personal Sessions">
+        @if (personal().length === 0) {
+          <p class="empty-text">No personal sessions.</p>
+        } @else {
+          <ul class="session-list">
+            @for (s of personal(); track s.id) {
+              <li class="session-row">
+                <div class="session-row__time">
+                  <span>{{ s.startTime | date:'EEE, MMM d' }}</span>
+                  <span class="session-row__hour">{{ s.startTime | date:'HH:mm' }}</span>
+                </div>
+                <div class="session-row__name">
+                  {{ s.name }}
+                  <span class="session-row__coach">with {{ coachName(s.coachId) }}</span>
+                </div>
+                <span class="chip chip--primary">Personal</span>
+              </li>
+            }
+          </ul>
+        }
+      </app-section-card>
+
+      <!-- Group sessions -->
+      <app-section-card icon="groups" title="Group Sessions">
+        @if (group().length === 0) {
+          <p class="empty-text">No group sessions.</p>
+        } @else {
+          <ul class="session-list">
+            @for (s of group(); track s.id) {
+              <li class="session-row">
+                <div class="session-row__time">
+                  <span>{{ s.startTime | date:'EEE, MMM d' }}</span>
+                  <span class="session-row__hour">{{ s.startTime | date:'HH:mm' }}</span>
+                </div>
+                <div class="session-row__name">
+                  {{ s.name }}
+                  <span class="session-row__coach">with {{ coachName(s.coachId) }}</span>
+                </div>
+                <span class="chip chip--accent">Group</span>
+              </li>
+            }
+          </ul>
+        }
+      </app-section-card>
+
+    </div>
+  }
+</div>
