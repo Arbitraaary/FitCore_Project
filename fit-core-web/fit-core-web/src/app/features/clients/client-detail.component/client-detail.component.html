@@ -27,22 +27,33 @@
           }
         </div>
       </div>
+      <!-- Quick action buttons in header -->
+      <div class="detail-header__actions">
+        <button mat-stroked-button (click)="openAssignMembership()">
+          <mat-icon>card_membership</mat-icon> Membership
+        </button>
+        <button mat-stroked-button (click)="openAssignPersonal()">
+          <mat-icon>person_pin</mat-icon> Personal Session
+        </button>
+        <button mat-raised-button color="primary" (click)="openAssignGroup()">
+          <mat-icon>groups</mat-icon> Group Session
+        </button>
+      </div>
     </div>
 
     <div class="detail-grid">
 
       <!-- Contact info -->
-      <app-section-card icon="person" title="Contact Information">
-        <app-info-row [value]="client()!.email" icon="mail" label="Email" />
-        <app-info-row [value]="client()!.phoneNumber" icon="phone" label="Phone" />
-        <app-info-row [value]="client()!.id" icon="badge" label="Client ID" />
+      <app-section-card title="Contact Information" icon="person">
+        <app-info-row icon="mail"  label="Email"     [value]="client()!.email" />
+        <app-info-row icon="phone" label="Phone"     [value]="client()!.phoneNumber" />
+        <app-info-row icon="badge" label="Client ID" [value]="client()!.id" />
       </app-section-card>
 
-      <!-- Membership -->
-      <app-section-card icon="card_membership" title="Memberships">
-        <button (click)="openAssignMembership()" actions mat-stroked-button>
-          <mat-icon>add</mat-icon>
-          Assign
+      <!-- Membership history -->
+      <app-section-card title="Memberships" icon="card_membership">
+        <button actions mat-stroked-button (click)="openAssignMembership()">
+          <mat-icon>add</mat-icon> Assign
         </button>
 
         @if (memberships().length === 0) {
@@ -55,7 +66,7 @@
                   <span class="membership-row__name">{{ membershipName(m.membershipTypeId) }}</span>
                   <span class="membership-row__dates">{{ m.startDate }} → {{ m.endDate }}</span>
                 </div>
-                <span [class]="statusClass(membershipSvc.resolveStatus(m))" class="chip">
+                <span class="chip" [class]="statusClass(membershipSvc.resolveStatus(m))">
                   {{ membershipSvc.resolveStatus(m) }}
                 </span>
               </li>
@@ -65,7 +76,11 @@
       </app-section-card>
 
       <!-- Personal sessions -->
-      <app-section-card icon="person_pin" title="Personal Sessions">
+      <app-section-card title="Personal Sessions" icon="person_pin">
+        <button actions mat-stroked-button (click)="openAssignPersonal()">
+          <mat-icon>add</mat-icon> Assign
+        </button>
+
         @if (personal().length === 0) {
           <p class="empty-text">No personal sessions.</p>
         } @else {
@@ -88,7 +103,11 @@
       </app-section-card>
 
       <!-- Group sessions -->
-      <app-section-card icon="groups" title="Group Sessions">
+      <app-section-card title="Group Sessions" icon="groups">
+        <button actions mat-stroked-button (click)="openAssignGroup()">
+          <mat-icon>add</mat-icon> Enroll
+        </button>
+
         @if (group().length === 0) {
           <p class="empty-text">No group sessions.</p>
         } @else {

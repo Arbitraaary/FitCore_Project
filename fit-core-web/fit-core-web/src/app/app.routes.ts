@@ -68,14 +68,14 @@ export const routes: Routes = [
             (m) => m.ClientDetailComponent,
           ),
       },
-      // {
-      //   path: 'group-calendar',
-      //   canActivate: [managerGuard],
-      //   loadComponent: () =>
-      //     import('./features/calendar/group-calendar/group-calendar.component').then(
-      //       (m) => m.GroupCalendarComponent,
-      //     ),
-      // },
+      {
+        path: 'group-calendar',
+        canActivate: [managerGuard],
+        loadComponent: () =>
+          import('./features/calendar/group-calendar.component/group-calendar.component').then(
+            (m) => m.GroupCalendarComponent,
+          ),
+      },
       // {
       //   path: 'equipment',
       //   canActivate: [managerGuard],
@@ -89,13 +89,13 @@ export const routes: Routes = [
       //     import('./features/analytics/analytics.component').then((m) => m.AnalyticsComponent),
       // },
       // // ── Coach routes (also accessible by manager) ────────────────────────
-      // {
-      //   path: 'coach-calendar/:coachId',
-      //   loadComponent: () =>
-      //     import('./features/calendar/coach-calendar/coach-calendar.component').then(
-      //       (m) => m.CoachCalendarComponent,
-      //     ),
-      // },
+      {
+        path: 'coach-calendar/:coachId',
+        loadComponent: () =>
+          import('./features/calendar/coach-calendar.component/coach-calendar.component').then(
+            (m) => m.CoachCalendarComponent,
+          ),
+      },
       // ─── Default redirect ────────────────────────────────────────────────
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],

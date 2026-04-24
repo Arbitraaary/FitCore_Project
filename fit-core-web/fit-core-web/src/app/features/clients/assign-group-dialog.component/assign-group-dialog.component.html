@@ -1,0 +1,102 @@
+<div class="dialog">
+
+  <div class="dialog__header">
+    <mat-icon class="dialog__icon">groups</mat-icon>
+    <h2 mat-dialog-title>Enroll in Group Session</h2>
+    <button mat-icon-button (click)="close()" class="dialog__close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content>
+
+    @if (success()) {
+      <div class="success-msg">
+        <mat-icon>check_circle</mat-icon>
+        {{ data.clientName }} enrolled successfully!
+      </div>
+    } @else {
+
+      <p class="dialog__subtitle">
+        Select a group session to enroll <strong>{{ data.clientName }}</strong> in.
+      </p>
+
+      <!-- Search -->
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search sessions</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [ngModel]="search()" (ngModelChange)="search.set($event)"
+               placeholder="Session name or coach…" />
+      </mat-form-field>
+
+      <!-- Session list -->
+      @if (filtered().length === 0) {
+        <div class="empty">
+          <mat-icon>event_busy</mat-icon>
+          <span>No sessions found</span>
+        </div>
+      } @else {
+        <ul class="session-list">
+          @for (s of filtered(); track s.id) {
+            @let enrolled = isEnrolled(s.id);
+            @let full     = !enrolled && isFull(s.id);
+
+            <li class="session-card"
+                [class.session-card--selected]="selected() === s.id"
+                [class.session-card--disabled]="enrolled || full"
+                (click)="select(s.id)">
+
+              <div class="session-card__left">
+                <span class="session-card__name">{{ s.name }}</span>
+                <span class="session-card__coach">
+                  <mat-icon>sports</mat-icon>{{ coachName(s.coachId) }}
+                </span>
+                <span class="session-card__time">
+                  <mat-icon>schedule</mat-icon>
+                  {{ s.startTime | date:'EEE, MMM d · HH:mm' }} → {{ s.endTime | date:'HH:mm' }}
+                </span>
+                <span class="session-card__desc">{{ s.description }}</span>
+              </div>
+
+              <div class="session-card__right">
+                <div class="capacity-badge"
+                     [class.capacity-badge--full]="full"
+                     [class.capacity-badge--ok]="!full && !enrolled">
+                  <mat-icon>{{ full ? 'do_not_disturb' : 'people' }}</mat-icon>
+                  {{ s.enrolledClientIds.length }}/{{ s.capacity }}
+                </div>
+
+                @if (enrolled) {
+                  <span class="chip chip--success">Enrolled</span>
+                } @else if (full) {
+                  <span class="chip chip--warn">Full</span>
+                } @else {
+                  <span class="chip chip--neutral">{{ spotsLeft(s) }} spot{{ spotsLeft(s) !== 1 ? 's' : '' }} left</span>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      }
+
+      @if (errorMsg()) {
+        <div class="error-msg">
+          <mat-icon>error_outline</mat-icon>
+          {{ errorMsg() }}
+        </div>
+      }
+
+    }
+  </mat-dialog-content>
+
+  @if (!success()) {
+    <mat-dialog-actions align="end">
+      <button mat-stroked-button (click)="close()">Cancel</button>
+      <button mat-raised-button color="primary"
+              [disabled]="!selected()"
+              (click)="enroll()">
+        Enroll Client
+      </button>
+    </mat-dialog-actions>
+  }
+</div>

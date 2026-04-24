@@ -1,0 +1,98 @@
+<div class="event-dialog">
+
+  <!-- Colour strip at top indicating type -->
+  <div class="event-dialog__strip event-dialog__strip--{{ event.type }}"></div>
+
+  <div class="event-dialog__header">
+    <div class="event-dialog__type-icon event-dialog__type-icon--{{ event.type }}">
+      <mat-icon>{{ event.type === 'group' ? 'groups' : 'person_pin' }}</mat-icon>
+    </div>
+    <div class="event-dialog__titles">
+      <h2>{{ event.name }}</h2>
+      <span class="chip" [class.chip--primary]="event.type === 'group'" [class.chip--accent]="event.type === 'personal'">
+        {{ event.type === 'group' ? 'Group Session' : 'Personal Session' }}
+      </span>
+    </div>
+    <button mat-icon-button (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-divider />
+
+  <mat-dialog-content class="event-dialog__body">
+
+    <div class="detail-row">
+      <mat-icon>calendar_today</mat-icon>
+      <div>
+        <span class="detail-row__label">Date</span>
+        <span class="detail-row__value">{{ event.startTime | date:'EEEE, MMMM d, y' }}</span>
+      </div>
+    </div>
+
+    <div class="detail-row">
+      <mat-icon>schedule</mat-icon>
+      <div>
+        <span class="detail-row__label">Time</span>
+        <span class="detail-row__value">
+          {{ fmtTime(event.startTime) }} – {{ fmtTime(event.endTime) }}
+          <span class="detail-row__sub">({{ duration }})</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="detail-row">
+      <mat-icon>sports</mat-icon>
+      <div>
+        <span class="detail-row__label">Coach</span>
+        <span class="detail-row__value">{{ event.coachName }}</span>
+      </div>
+    </div>
+
+    <div class="detail-row">
+      <mat-icon>room</mat-icon>
+      <div>
+        <span class="detail-row__label">Room</span>
+        <span class="detail-row__value">{{ event.roomName }}</span>
+      </div>
+    </div>
+
+    @if (event.type === 'group') {
+      <div class="detail-row">
+        <mat-icon>people</mat-icon>
+        <div>
+          <span class="detail-row__label">Capacity</span>
+          <span class="detail-row__value">
+            {{ event.enrolledCount }} / {{ event.capacity }} enrolled
+          </span>
+        </div>
+      </div>
+
+      @if (event.description) {
+        <div class="detail-row">
+          <mat-icon>notes</mat-icon>
+          <div>
+            <span class="detail-row__label">Description</span>
+            <span class="detail-row__value">{{ event.description }}</span>
+          </div>
+        </div>
+      }
+    }
+
+    @if (event.type === 'personal' && event.clientName) {
+      <div class="detail-row">
+        <mat-icon>person</mat-icon>
+        <div>
+          <span class="detail-row__label">Client</span>
+          <span class="detail-row__value">{{ event.clientName }}</span>
+        </div>
+      </div>
+    }
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-raised-button color="primary" (click)="close()">Close</button>
+  </mat-dialog-actions>
+
+</div>

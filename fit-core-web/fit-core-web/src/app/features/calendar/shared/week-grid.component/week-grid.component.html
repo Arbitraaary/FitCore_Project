@@ -1,0 +1,59 @@
+<div class="week-grid">
+
+  <!-- ── Column headers ────────────────────────────────────────────────── -->
+  <div class="week-grid__header">
+    <div class="week-grid__gutter"></div>
+    @for (day of days(); track day.toISOString()) {
+      <div class="week-grid__day-head" [class.week-grid__day-head--today]="isToday(day)">
+        <span class="week-grid__day-name">{{ day | date:'EEE' }}</span>
+        <span class="week-grid__day-num" [class.week-grid__day-num--today]="isToday(day)">
+          {{ day | date:'d' }}
+        </span>
+      </div>
+    }
+  </div>
+
+  <!-- ── Scrollable body ────────────────────────────────────────────────── -->
+  <div class="week-grid__body">
+
+    <!-- Hour labels (left gutter) -->
+    <div class="week-grid__hours">
+      @for (h of hours; track h) {
+        <div class="week-grid__hour-label">{{ h | number:'2.0' }}:00</div>
+      }
+    </div>
+
+    <!-- Day columns -->
+    @for (day of days(); track day.toISOString()) {
+      <div class="week-grid__col" [class.week-grid__col--today]="isToday(day)">
+
+        <!-- Hour slot lines -->
+        @for (h of hours; track h) {
+          <div class="week-grid__slot"></div>
+        }
+
+        <!-- Events -->
+        @for (event of dayEvents(day); track event.id) {
+          <div
+            class="cal-event cal-event--{{ event.type }}"
+            [style.top]="position(event).top"
+            [style.height]="position(event).height"
+            [matTooltip]="event.name + ' · ' + startLabel(event) + '–' + endLabel(event)"
+            (click)="eventClicked.emit(event)"
+          >
+            <span class="cal-event__name">{{ event.name }}</span>
+            <span class="cal-event__time">{{ startLabel(event) }}–{{ endLabel(event) }}</span>
+            @if (event.type === 'group' && event.enrolledCount !== undefined) {
+              <span class="cal-event__cap">
+                <mat-icon>people</mat-icon>
+                {{ event.enrolledCount }}/{{ event.capacity }}
+              </span>
+            }
+          </div>
+        }
+
+      </div>
+    }
+
+  </div>
+</div>

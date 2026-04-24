@@ -1,0 +1,38 @@
+<div class="page-container calendar-page">
+
+  <!-- ── Toolbar ──────────────────────────────────────────────────────────── -->
+  <div class="cal-toolbar">
+    <div class="cal-toolbar__left">
+      <h1>Group Calendar</h1>
+      <p>All group training sessions at this location</p>
+    </div>
+
+    <div class="cal-toolbar__nav">
+      <button mat-icon-button (click)="prevWeek()" matTooltip="Previous week">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <span class="cal-toolbar__week-label">{{ weekLabel() }}</span>
+      <button mat-icon-button (click)="nextWeek()" matTooltip="Next week">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+      <button mat-stroked-button (click)="goToday()" class="today-btn">Today</button>
+    </div>
+
+    <!-- Legend -->
+    <div class="cal-toolbar__legend">
+      <span class="legend-dot legend-dot--group"></span>
+      <span class="legend-label">Group Session</span>
+    </div>
+  </div>
+
+  <!-- ── Week Grid ────────────────────────────────────────────────────────── -->
+  <div class="cal-grid-wrap">
+    <app-week-grid
+      [weekStart]="currentWeekStart()"
+      [events]="events()"
+      [showTypes]="['group']"
+      (eventClicked)="onEventClick($event)"
+    />
+  </div>
+
+</div>

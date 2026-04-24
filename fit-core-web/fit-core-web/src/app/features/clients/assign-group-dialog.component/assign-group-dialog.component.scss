@@ -1,0 +1,179 @@
+.dialog {
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 24px 24px 0;
+  }
+
+  &__icon {
+    color: var(--color-primary);
+    font-size: 27px;
+    width: 27px;
+    height: 27px;
+  }
+
+  h2[mat-dialog-title] {
+    flex: 1;
+    font-size: 1.35rem !important;
+    font-weight: 600 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  &__close { color: var(--color-text-secondary); }
+
+  &__subtitle {
+    font-size: 1.05rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 18px;
+    line-height: 1.5;
+
+    strong { color: var(--color-text-primary); }
+  }
+}
+
+.search-field {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 40px 0;
+  color: var(--color-text-disabled);
+  font-size: 1.05rem;
+
+  mat-icon { font-size: 42px; width: 42px; height: 42px; }
+}
+
+// ── Session list ──────────────────────────────────────────────────────────────
+.session-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+.session-card {
+  display: flex;
+  gap: 18px;
+  padding: 18px;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+
+  &:hover:not(.session-card--disabled) {
+    border-color: var(--color-primary-light);
+    box-shadow: var(--shadow-sm);
+  }
+
+  &--selected {
+    border-color: var(--color-primary) !important;
+    background: #ede9fe33;
+    box-shadow: var(--shadow-md) !important;
+  }
+
+  &--disabled {
+    cursor: default;
+    opacity: .65;
+  }
+
+  &__left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  &__coach,
+  &__time {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+
+    mat-icon { font-size: 15px; width: 15px; height: 15px; }
+  }
+
+  &__desc {
+    font-size: .95rem;
+    color: var(--color-text-disabled);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+}
+
+// ── Capacity badge ────────────────────────────────────────────────────────────
+.capacity-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-primary);
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+  &--full { color: var(--color-warn); }
+  &--ok   { color: #065f46; }
+}
+
+// ── Messages ──────────────────────────────────────────────────────────────────
+.success-msg {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 21px;
+  background: #d1fae5;
+  color: #065f46;
+  border-radius: var(--radius-md);
+  font-size: 1.2rem;
+  font-weight: 500;
+
+  mat-icon { font-size: 24px; width: 24px; height: 24px; }
+}
+
+.error-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #fee2e2;
+  color: var(--color-warn);
+  border-radius: var(--radius-sm);
+  font-size: 1.05rem;
+  font-weight: 500;
+  margin-top: 12px;
+
+  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+}
+
+mat-dialog-actions {
+  padding: 16px 24px !important;
+  gap: 10px;
+
+  button {
+    height: 48px !important;
+    font-size: 1.05rem !important;
+    padding: 0 24px !important;
+  }
+}

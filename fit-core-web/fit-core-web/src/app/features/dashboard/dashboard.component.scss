@@ -26,13 +26,16 @@
 
 
 .stats-grid {
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 15cqi));
-  gap: 2cqi;
+  justify-content: space-between;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 19%));
+  row-gap: 20px;
   margin-bottom: 28px;
 }
 
 .stat-card {
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -84,6 +87,8 @@
   }
 
   &__label {
+    display: flex;
+    text-align: center;
     font-size: 1.2rem;
     color: var(--color-text-secondary);
     font-weight: 500;

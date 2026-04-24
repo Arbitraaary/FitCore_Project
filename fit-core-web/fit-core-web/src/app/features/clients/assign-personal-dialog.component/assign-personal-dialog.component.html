@@ -1,0 +1,124 @@
+<div class="dialog">
+
+  <div class="dialog__header">
+    <mat-icon class="dialog__icon">person_pin</mat-icon>
+    <h2 mat-dialog-title>Assign Personal Session</h2>
+    <button mat-icon-button (click)="close()" class="dialog__close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content>
+
+    @if (success()) {
+      <div class="success-msg">
+        <mat-icon>check_circle</mat-icon>
+        Session scheduled for {{ data.clientName }}!
+      </div>
+    } @else {
+
+      <p class="dialog__subtitle">
+        Scheduling a personal training session for <strong>{{ data.clientName }}</strong>.
+      </p>
+
+      <mat-stepper orientation="vertical" #stepper>
+
+        <!-- Step 1: Session details -->
+        <mat-step [stepControl]="step1" label="Session Details">
+          <form [formGroup]="step1" class="step-form">
+
+            <mat-form-field appearance="outline">
+              <mat-label>Coach</mat-label>
+              <mat-icon matPrefix>sports</mat-icon>
+              <mat-select formControlName="coachId">
+                @for (c of coaches; track c.id) {
+                  <mat-option [value]="c.id">{{ coachName(c.id) }}</mat-option>
+                }
+              </mat-select>
+              @if (step1.get('coachId')?.hasError('required') && step1.get('coachId')?.touched) {
+                <mat-error>Please select a coach</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Session Name</mat-label>
+              <mat-icon matPrefix>edit</mat-icon>
+              <input matInput formControlName="name" placeholder="e.g. Boxing Fundamentals" />
+              @if (step1.get('name')?.hasError('required') && step1.get('name')?.touched) {
+                <mat-error>Session name is required</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Room</mat-label>
+              <mat-icon matPrefix>room</mat-icon>
+              <mat-select formControlName="roomId">
+                @for (r of rooms; track r.id) {
+                  <mat-option [value]="r.id">{{ roomLabel(r) }}</mat-option>
+                }
+              </mat-select>
+              @if (step1.get('roomId')?.hasError('required') && step1.get('roomId')?.touched) {
+                <mat-error>Please select a room</mat-error>
+              }
+            </mat-form-field>
+
+            <div class="step-actions">
+              <button mat-raised-button color="primary" matStepperNext type="button"
+                      [disabled]="step1.invalid" (click)="step1.markAllAsTouched()">
+                Next
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- Step 2: Date & time -->
+        <mat-step [stepControl]="step2" label="Date & Time">
+          <form [formGroup]="step2" class="step-form">
+
+            <mat-form-field appearance="outline">
+              <mat-label>Date</mat-label>
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+              <input matInput formControlName="date" [matDatepicker]="picker"/>
+              @if (step2.get('date')?.hasError('required') && step2.get('date')?.touched) {
+                <mat-error>Date is required</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Start Hour</mat-label>
+              <mat-icon matPrefix>schedule</mat-icon>
+              <mat-select formControlName="startHour">
+                @for (h of hours; track h) {
+                  <mat-option [value]="h">{{ h | number:'2.0' }}:00</mat-option>
+                }
+              </mat-select>
+              @if (step2.get('startHour')?.hasError('required') && step2.get('startHour')?.touched) {
+                <mat-error>Start hour is required</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Duration (minutes)</mat-label>
+              <mat-icon matPrefix>timelapse</mat-icon>
+              <input matInput type="number" formControlName="duration" min="30" max="240" step="15" />
+              @if (step2.get('duration')?.invalid && step2.get('duration')?.touched) {
+                <mat-error>Duration must be 30–240 minutes</mat-error>
+              }
+            </mat-form-field>
+
+            <div class="step-actions">
+              <button mat-stroked-button matStepperPrevious type="button">Back</button>
+              <button mat-raised-button color="primary" type="button"
+                      [disabled]="step2.invalid" (click)="step2.markAllAsTouched(); submit()">
+                Schedule Session
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+      </mat-stepper>
+
+    }
+  </mat-dialog-content>
+</div>

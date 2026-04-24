@@ -6,15 +6,8 @@
   padding: 100px 0;
   color: var(--color-text-disabled);
 
-  mat-icon {
-    font-size: 60px;
-    width: 60px;
-    height: 60px;
-  }
-
-  p {
-    font-size: 1.35rem;
-  }
+  mat-icon { font-size: 60px; width: 60px; height: 60px; }
+  p { font-size: 1.35rem; }
 }
 
 .detail-header {
@@ -24,10 +17,7 @@
   flex-wrap: wrap;
   margin-bottom: 28px;
 
-  a[mat-icon-button] {
-    color: var(--color-text-secondary);
-    flex-shrink: 0;
-  }
+  a[mat-icon-button] { color: var(--color-text-secondary); flex-shrink: 0; }
 
   &__avatar {
     width: 72px;
@@ -43,22 +33,9 @@
     flex-shrink: 0;
   }
 
-  &__info {
-    flex: 1;
+  &__info { flex: 1; h1 { font-size: 1.95rem; font-weight: 700; letter-spacing: -.025em; } }
 
-    h1 {
-      font-size: 1.95rem;
-      font-weight: 700;
-      letter-spacing: -.025em;
-    }
-  }
-
-  &__chips {
-    display: flex;
-    gap: 8px;
-    margin-top: 6px;
-    flex-wrap: wrap;
-  }
+  &__chips { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
 }
 
 .detail-grid {
@@ -66,16 +43,11 @@
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 
-  @media (max-width: 900px) {
-    grid-template-columns: 1fr;
-  }
+  @media (max-width: 900px) { grid-template-columns: 1fr; }
 }
 
 // ── Membership list ───────────────────────────────────────────────────────────
-.membership-list {
-  list-style: none;
-  margin: -24px;
-}
+.membership-list { list-style: none; margin: -24px; }
 
 .membership-row {
   display: flex;
@@ -84,35 +56,16 @@
   padding: 15px 24px;
   border-bottom: 1px solid var(--color-border);
 
-  &:last-child {
-    border-bottom: none;
-  }
+  &:last-child { border-bottom: none; }
 
-  &__body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
+  &__body { flex: 1; display: flex; flex-direction: column; gap: 3px; }
 
-  &__name {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--color-text-primary);
-  }
-
-  &__dates {
-    font-size: .95rem;
-    color: var(--color-text-secondary);
-    font-family: var(--font-mono);
-  }
+  &__name  { font-size: 1.1rem; font-weight: 600; color: var(--color-text-primary); }
+  &__dates { font-size: .95rem; color: var(--color-text-secondary); font-family: var(--font-mono); }
 }
 
 // ── Session list ──────────────────────────────────────────────────────────────
-.session-list {
-  list-style: none;
-  margin: -24px;
-}
+.session-list { list-style: none; margin: -24px; }
 
 .session-row {
   display: flex;
@@ -121,9 +74,7 @@
   padding: 15px 24px;
   border-bottom: 1px solid var(--color-border);
 
-  &:last-child {
-    border-bottom: none;
-  }
+  &:last-child { border-bottom: none; }
 
   &__time {
     display: flex;
@@ -162,4 +113,26 @@
   color: var(--color-text-disabled);
   text-align: center;
   padding: 18px 0;
+}
+
+// ── Header actions (added Part 3) ─────────────────────────────────────────────
+.detail-header__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-left: auto;
+
+  button {
+    height: 48px !important;
+    font-size: 1rem !important;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  @media (max-width: 900px) {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-start;
+  }
 }

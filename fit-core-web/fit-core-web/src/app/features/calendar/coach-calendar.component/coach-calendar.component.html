@@ -1,0 +1,67 @@
+<div class="page-container calendar-page">
+
+  <!-- ── Toolbar ──────────────────────────────────────────────────────────── -->
+  <div class="cal-toolbar">
+
+    <div class="cal-toolbar__left">
+      @if (isManager()) {
+        <a mat-icon-button [routerLink]="['/coaches', coachId()]" class="back-btn">
+          <mat-icon>arrow_back</mat-icon>
+        </a>
+      }
+      <div>
+        <h1>{{ coachFullName() }}'s Calendar</h1>
+        <p>
+          {{ totalThisWeek() }} session{{ totalThisWeek() !== 1 ? 's' : '' }} this week
+          @if (coach()?.specialization) {
+            &nbsp;·&nbsp;
+            <span class="chip chip--primary" style="font-size:.85rem">{{ coach()!.specialization }}</span>
+          }
+        </p>
+      </div>
+    </div>
+
+    <!-- Week nav -->
+    <div class="cal-toolbar__nav">
+      <button mat-icon-button (click)="prevWeek()" matTooltip="Previous week">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <span class="cal-toolbar__week-label">{{ weekLabel() }}</span>
+      <button mat-icon-button (click)="nextWeek()" matTooltip="Next week">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+      <button mat-stroked-button (click)="goToday()" class="today-btn">Today</button>
+    </div>
+
+    <!-- Filter + legend -->
+    <div class="cal-toolbar__right">
+      <div class="filter-tabs">
+        @for (opt of filterOptions; track opt.value) {
+          <button class="filter-tab" [class.filter-tab--active]="filter() === opt.value"
+                  (click)="filter.set(opt.value)">
+            {{ opt.label }}
+          </button>
+        }
+      </div>
+
+      <div class="legend">
+        <span class="legend-dot legend-dot--personal"></span>
+        <span class="legend-label">Personal</span>
+        <span class="legend-dot legend-dot--group"></span>
+        <span class="legend-label">Group</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Week Grid ────────────────────────────────────────────────────────── -->
+  <div class="cal-grid-wrap">
+    <app-week-grid
+      [weekStart]="currentWeekStart()"
+      [events]="events()"
+      [showTypes]="showTypes()"
+      (eventClicked)="onEventClick($event)"
+    />
+  </div>
+
+</div>
