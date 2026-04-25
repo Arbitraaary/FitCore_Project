@@ -8,10 +8,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CoachService } from '../../../core/services/coach.service';
+import { CoachService, CreateCoachDto } from '../../../core/services/coach.service';
 import { SpecializationType } from '../../../core/models/types';
 import { MatDivider } from '@angular/material/list';
 import { MatCard } from '@angular/material/card';
+import {firstValueFrom} from 'rxjs';
 
 @Component({
   selector: 'app-coach-register',
@@ -47,11 +48,9 @@ export class CoachRegisterComponent {
   private coaches = inject(CoachService);
 
   uniqueEmailValidator(control: AbstractControl): Promise<ValidationErrors | null> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(this.coaches.emailExists(control.value) ? { emailTaken: true } : null);
-      }, 300);
-    });
+    return firstValueFrom(this.coaches.emailExists(control.value)).then((exists) =>
+      exists ? { emailTaken: true } : null,
+    );
   }
 
   onSubmit() {
@@ -60,18 +59,20 @@ export class CoachRegisterComponent {
       return;
     }
     this.loading.set(true);
-    setTimeout(() => {
-      this.coaches.create({
-        firstName: this.form.value.firstName!,
-        lastName: this.form.value.lastName!,
-        email: this.form.value.email!,
-        phoneNumber: this.form.value.phoneNumber!,
-        specialization: this.form.value.specialization!,
-      });
-      this.loading.set(false);
-      this.success.set(true);
-      setTimeout(() => this.router.navigate(['/coaches']), 1200);
-    }, 600);
+
+    const payload: CreateCoachDto = this.form.getRawValue() as CreateCoachDto;
+
+    this.coaches.create(payload).subscribe({
+      next: () => {
+        this.loading.set(false);
+        this.success.set(true);
+        setTimeout(() => this.router.navigate(['/coaches']), 1500);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        console.error('Registration failed:', err);
+      },
+    });
   }
 
   cancel() {

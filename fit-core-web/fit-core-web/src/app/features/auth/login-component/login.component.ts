@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService, LoginCredentials } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -47,8 +47,8 @@ export class LoginComponent {
 
   // Demo hint credentials
   hints = [
-    { role: 'Manager', email: 'manager@gymos.com', password: 'manager123' },
-    { role: 'Coach', email: 'ivan.boxing@gymos.com', password: 'coach123' },
+    { role: 'Manager', email: 'manager@example.com', password: 'password321' },
+    { role: 'Coach', email: 'coach@example.com', password: 'password123' },
   ];
 
   fillHint(hint: { email: string; password: string }) {
@@ -65,18 +65,26 @@ export class LoginComponent {
     this.loading.set(true);
     this.errorMessage.set('');
 
-    // Simulate async (500 ms)
-    setTimeout(() => {
-      const { email, password } = this.form.value;
-      const result = this.auth.login({ email: email!, password: password! });
+    const credentials = this.form.getRawValue() as LoginCredentials;
 
-      if (result.success) {
+    this.auth.login(credentials).subscribe({
+      next: (user) => {
+        this.loading.set(false);
         this.router.navigate(['/dashboard']);
-      } else {
-        this.errorMessage.set(result.error ?? 'Login failed.');
-      }
+      },
+      error: (err) => {
+        this.loading.set(false);
+        console.error('Full error object:', err);
 
-      this.loading.set(false);
-    }, 500);
+        if (err.status === 401) {
+          this.errorMessage.set('Wrong login or password');
+        } else if (err.status === 500) {
+          const serverMessage = err.error?.message || 'Server Error (500)';
+          this.errorMessage.set(serverMessage);
+        } else {
+          this.errorMessage.set('Server is unavailable');
+        }
+      },
+    });
   }
 }

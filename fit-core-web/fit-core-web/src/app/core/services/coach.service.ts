@@ -1,6 +1,9 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Coach, SpecializationType } from '../models/types';
 import { MOCK_COACHES } from '../data/mock.data';
+import { HttpClient} from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import { Observable } from 'rxjs';
 
 export interface CreateCoachDto {
   email: string;
@@ -8,10 +11,14 @@ export interface CreateCoachDto {
   lastName: string;
   phoneNumber: string;
   specialization: SpecializationType;
+  password: string;
+
 }
 
 @Injectable({ providedIn: 'root' })
 export class CoachService {
+  private http = inject(HttpClient);
+  private readonly authUrl = environment.apiUrl + '/Auth';
   private _coaches = signal<Coach[]>([...MOCK_COACHES]);
   readonly coaches = this._coaches.asReadonly();
 
@@ -23,19 +30,11 @@ export class CoachService {
     return this._coaches().find((c) => c.id === id);
   }
 
-  create(dto: CreateCoachDto): Coach {
-    const coach: Coach = {
-      id: `usr-cch-${Date.now()}`,
-      userType: 'coach',
-      ...dto,
-    };
-    this._coaches.update((list) => [...list, coach]);
-    return coach;
+  create(dto: CreateCoachDto): Observable<any> {
+    return this.http.post(`${this.authUrl}/RegisterCoach`, dto.email, {withCredentials: true});
   }
 
-  emailExists(email: string, excludeId?: string): boolean {
-    return this._coaches().some(
-      (c) => c.email.toLowerCase() === email.toLowerCase() && c.id !== excludeId,
-    );
+  emailExists(email: string, excludeId?: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.authUrl}/CheckEmail`, { params: { email } });
   }
 }

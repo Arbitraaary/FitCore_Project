@@ -77,9 +77,9 @@ export class ShellComponent {
     this.sidenavOpen.update((v) => !v);
   }
 
-  switchRole(role: 'manager' | 'coach') {
-    this.auth.switchRole(role);
-  }
+  // switchRole(role: 'manager' | 'coach') {
+  //  this.auth.switchRole(role);
+  // }
 
   logout() {
     this.auth.logout();

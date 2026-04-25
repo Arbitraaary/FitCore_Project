@@ -108,6 +108,7 @@ export interface AuthUser {
   firstName: string;
   lastName: string;
   role: 'manager' | 'coach';
+  phoneNumber: string;
   locationId?: string; // present for manager
   coachId?: string; // present for coach (same as id)
 }

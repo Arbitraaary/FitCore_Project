@@ -1,23 +1,30 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthUser } from '../models/types';
-import { MOCK_COACHES, MOCK_MANAGER } from '../data/mock.data';
-
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
+import {environment} from '../../../environments/environment';
 export interface LoginCredentials {
   email: string;
   password: string;
 }
 
-// Mock credential map  email → { password, role }
-const MOCK_CREDENTIALS: Record<string, { password: string; role: 'manager' | 'coach' }> = {
-  'manager@gymos.com': { password: 'manager123', role: 'manager' },
-  'ivan.boxing@gymos.com': { password: 'coach123', role: 'coach' },
-  'maria.swim@gymos.com': { password: 'coach123', role: 'coach' },
-  'dmytro.karate@gymos.com': { password: 'coach123', role: 'coach' },
-};
+export interface LoginResponse {
+  userId: string;
+  email: string;
+  userType: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private http = inject(HttpClient);
+  private router = inject(Router);
+
+  private readonly authUrl = environment.apiUrl + '/Auth/Login';
+
   private _currentUser = signal<AuthUser | null>(this._loadFromStorage());
 
   readonly currentUser = this._currentUser.asReadonly();
@@ -25,62 +32,28 @@ export class AuthService {
   readonly isManager = computed(() => this._currentUser()?.role === 'manager');
   readonly isCoach = computed(() => this._currentUser()?.role === 'coach');
 
-  constructor(private router: Router) {}
+  constructor() {}
 
-  login(credentials: LoginCredentials): { success: boolean; error?: string } {
-    const entry = MOCK_CREDENTIALS[credentials.email.toLowerCase()];
+  login(credentials: LoginCredentials): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(this.authUrl, credentials).pipe(
+      tap((response) => {
 
-    if (!entry) {
-      return { success: false, error: 'No account found with this email.' };
-    }
-    if (entry.password !== credentials.password) {
-      return { success: false, error: 'Incorrect password.' };
-    }
-
-    const user = this._buildAuthUser(credentials.email, entry.role);
-    if (!user) {
-      return { success: false, error: 'User data not found.' };
-    }
-
-    this._setUser(user);
-    return { success: true };
+        const authUser: AuthUser = {
+          id: response.userId,
+          email: response.email,
+          firstName: response.firstName,
+          lastName: response.lastName,
+          role: response.userType.toLowerCase() as 'manager' | 'coach',
+          phoneNumber: response.phoneNumber
+        };
+        this._setUser(authUser);
+      }),
+    );
   }
 
   logout(): void {
     this._setUser(null);
     this.router.navigate(['/login']);
-  }
-
-  /** Role switcher for dev/demo purposes */
-  switchRole(role: 'manager' | 'coach'): void {
-    const email = role === 'manager' ? 'manager@gymos.com' : 'ivan.boxing@gymos.com';
-    const user = this._buildAuthUser(email, role);
-    if (user) this._setUser(user);
-    this.router.navigate(['/dashboard']);
-  }
-
-  private _buildAuthUser(email: string, role: 'manager' | 'coach'): AuthUser | null {
-    if (role === 'manager') {
-      return {
-        id: MOCK_MANAGER.id,
-        email: MOCK_MANAGER.email,
-        firstName: MOCK_MANAGER.firstName,
-        lastName: MOCK_MANAGER.lastName,
-        role: 'manager',
-        locationId: MOCK_MANAGER.locationId,
-      };
-    }
-
-    const coach = MOCK_COACHES.find((c) => c.email === email);
-    if (!coach) return null;
-    return {
-      id: coach.id,
-      email: coach.email,
-      firstName: coach.firstName,
-      lastName: coach.lastName,
-      role: 'coach',
-      coachId: coach.id,
-    };
   }
 
   private _setUser(user: AuthUser | null): void {
