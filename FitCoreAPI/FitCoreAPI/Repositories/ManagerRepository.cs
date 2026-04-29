@@ -14,9 +14,10 @@ public class ManagerRepository: IManagerRepository
         _dbContext = dbContext;
     }
     
-    public async Task<ManagerModel?> GetByIdAsync(Guid userId, CancellationToken ct)
+    public async Task<ManagerModel?> GetByIdAsync(Guid userId, CancellationToken ct) 
     {
-        return await _dbContext.Managers.Include(m=>m.UserId).FirstOrDefaultAsync(m => m.UserId == userId, ct);
+        return await _dbContext.Managers.Include(m=>m.User).Include(m => m.Location)
+            .FirstOrDefaultAsync(m => m.UserId == userId, ct); 
     }
 
     public async Task<List<ManagerModel>> GetAllAsync(CancellationToken ct)

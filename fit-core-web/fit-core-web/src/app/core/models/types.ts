@@ -2,7 +2,7 @@
 
 export type UserType = 'admin' | 'manager' | 'coach' | 'client';
 
-export type SpecializationType = 'Box' | 'Karate' | 'Swim';
+export type SpecializationType = 'Box' | 'Karate' | 'Swim' | 'Dance' | 'Yoga' | 'Stretching';
 
 export type EquipmentType = 'dumbbells' | 'barbells' | 'treadmills';
 
@@ -26,37 +26,43 @@ export interface User {
 export interface Coach extends User {
   userType: 'coach';
   specialization: SpecializationType;
+  location: GymLocation;
+}
+
+
+export interface CoachWithSessionCount extends Coach {
+  sessionCount: number;
 }
 
 export interface Client extends User {
   userType: 'client';
+  activeMembership?: MembershipType;
 }
 
 export interface Manager extends User {
   userType: 'manager';
-  locationId: string;
+  location: GymLocation;
 }
 
 export interface Admin extends User {
   userType: 'admin';
 }
 
-export interface Location {
-  id: string;
+export interface GymLocation {
   name: string;
   address: string;
 }
 
 export interface Room {
   id: string;
-  locationId: string;
+  locationName: string;
   roomType: RoomType;
   capacity: number;
 }
 
 export interface Equipment {
   id: string;
-  locationId: string;
+  locationName: string;
   equipmentType: EquipmentType;
   quantity: number;
 }
@@ -82,22 +88,26 @@ export interface PersonalTrainingSession {
   id: string;
   clientId: string;
   coachId: string;
+  coachName: string;
   roomId: string;
   name: string;
-  startTime: string; // ISO datetime
-  endTime: string; // ISO datetime
+  startTime: Date; // ISO datetime
+  endTime: Date; // ISO datetime
+  type: string;
 }
 
 export interface GroupTrainingSession {
   id: string;
   coachId: string;
+  coachName: string;
   roomId: string;
   name: string;
   description: string;
   capacity: number;
-  startTime: string;
-  endTime: string;
+  startTime: Date;
+  endTime: Date;
   enrolledClientIds: string[];
+  type: string;
 }
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
@@ -107,8 +117,8 @@ export interface AuthUser {
   email: string;
   firstName: string;
   lastName: string;
-  role: 'manager' | 'coach';
+  role: UserType;
   phoneNumber: string;
-  locationId?: string; // present for manager
+  locationName?: string; // present for manager
   coachId?: string; // present for coach (same as id)
 }

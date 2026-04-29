@@ -1,4 +1,4 @@
-﻿namespace FitCore_API.Abstractions.Services;
+﻿namespace FitCoreAPI.Abstractions.Services;
 
 public interface IPasswordService
 {

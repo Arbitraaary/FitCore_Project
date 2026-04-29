@@ -1,43 +1,84 @@
-import { Injectable, signal } from '@angular/core';
-import { ClientMembership, MembershipStatus } from '../models/types';
-import { MOCK_CLIENT_MEMBERSHIPS, MOCK_MEMBERSHIP_TYPES } from '../data/mock.data';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { ClientMembership, MembershipStatus, MembershipType } from '../models/types';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import { map, Observable, tap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class MembershipService {
-  readonly membershipTypes = MOCK_MEMBERSHIP_TYPES;
+  private http = inject(HttpClient);
+  private readonly apiUrl = `${environment.apiUrl}/MembershipType`;
+  private readonly clientApiUrl = `${environment.apiUrl}/Clients`;
 
-  private _memberships = signal<ClientMembership[]>([...MOCK_CLIENT_MEMBERSHIPS]);
-  readonly memberships = this._memberships.asReadonly();
-
-  getByClientId(clientId: string): ClientMembership[] {
-    return this._memberships().filter((m) => m.clientId === clientId);
+  public getByClientIdRaw(clientId: string): ClientMembership[] {
+    let memberships: ClientMembership[] = [];
+    this.getByClientId(clientId).subscribe({
+      next: (data) => {
+        memberships = data;
+      },
+      error: (err) => console.error(err),
+    });
+    return memberships;
   }
 
-  getActiveByClientId(clientId: string): ClientMembership | undefined {
-    return this._memberships().find((m) => m.clientId === clientId && m.status === 'active');
+  public getActiveByClientIdRaw(clientId: string): ClientMembership | undefined {
+    let activeMembership: ClientMembership | undefined = undefined;
+    this.getActiveByClientId(clientId).subscribe({
+      next: (data) => {
+        activeMembership = data;
+      },
+      error: (err) => console.error(err),
+    });
+    return activeMembership;
   }
 
-  getMembershipTypeName(typeId: string): string {
-    return this.membershipTypes.find((t) => t.id === typeId)?.name ?? '—';
+  public assignRaw(clientId: string, membershipTypeId: string): void {
+    this.assign(clientId, membershipTypeId).subscribe({
+      next: () => {
+        console.log('Membership assigned successfully');
+      },
+      error: (err) => console.error(err),
+    });
+  }
+  getMembershipTypesRaw(): MembershipType[] {
+    let memberships: MembershipType[] = [];
+    this.getMembershipTypes().subscribe({
+      next: data => memberships = data,
+      error: (err) => console.error(err),
+    })
+    return memberships;
+  }
+  getMembershipTypes(): Observable<MembershipType[]> {
+    return this.http.get<MembershipType[]>(`${this.apiUrl}/GetMembershipTypes`, {
+      withCredentials: true,
+    });
   }
 
-  assign(clientId: string, membershipTypeId: string): ClientMembership {
-    const type = this.membershipTypes.find((t) => t.id === membershipTypeId)!;
-    const start = new Date();
-    const end = new Date(start);
-    end.setDate(end.getDate() + type.duration);
+  getByClientId(clientId: string): Observable<ClientMembership[]> {
+    return this.http.get<ClientMembership[]>(`${this.clientApiUrl}/GetMemberships`, {
+      params: { clientId },
+      withCredentials: true
+    });
+  }
 
-    const membership: ClientMembership = {
-      id: `cm-${Date.now()}`,
-      membershipTypeId,
-      clientId,
-      startDate: start.toISOString().split('T')[0],
-      endDate: end.toISOString().split('T')[0],
-      status: 'active',
+  getActiveByClientId(clientId: string): Observable<ClientMembership | undefined> {
+    return this.getByClientId(clientId).pipe(
+      map((list) => list.find((m) => m.status === 'active')),
+    );
+  }
+
+  assign(clientId: string, membershipTypeId: string): Observable<any> {
+    const payload = {
+      clientId: clientId,
+      membershipTypeId: membershipTypeId,
     };
+    return this.http.post(`${this.clientApiUrl}/AssignMembership`, payload, {
+      withCredentials: true,
+    });
+  }
 
-    this._memberships.update((list) => [...list, membership]);
-    return membership;
+  getMembershipTypeName(typeId: string, types: MembershipType[]): string {
+    return types.find((t) => t.id === typeId)?.name ?? '—';
   }
 
   resolveStatus(m: ClientMembership): MembershipStatus {

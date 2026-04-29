@@ -1,4 +1,5 @@
-﻿using FitCore_API.Entities.Auxiliary;
+﻿using FitCore_API.DTOs;
+using FitCore_API.Entities.Auxiliary;
 
 namespace FitCore_API.Abstractions.Repositories;
 
@@ -9,4 +10,5 @@ public interface IClientRepository
     public Task<ClientModel?> GetByIdAsync(Guid userId, CancellationToken ct);
     public Task<List<ClientModel>> GetAllAsync(CancellationToken ct);
     public Task CreateAsync(ClientModel client, CancellationToken ct);
+    public Task<List<ClientModel>> GetWithMembershipsAsync();
 }

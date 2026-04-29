@@ -69,8 +69,16 @@ export class LoginComponent {
 
     this.auth.login(credentials).subscribe({
       next: (user) => {
-        this.loading.set(false);
-        this.router.navigate(['/dashboard']);
+        this.auth.getCompleteUser(user)?.subscribe({
+          next: (user) => {
+            this.loading.set(false);
+            this.router.navigate([`/dashboard/${user.userType}`]);
+          },
+          error: (error) => {
+            this.loading.set(false);
+            console.log(error);
+          }
+        });
       },
       error: (err) => {
         this.loading.set(false);

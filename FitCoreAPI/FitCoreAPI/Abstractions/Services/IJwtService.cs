@@ -1,7 +1,6 @@
 ﻿using FitCore_API.DTOs;
-using FitCore_API.Entities;
 
-namespace FitCore_API.Abstractions.Services;
+namespace FitCoreAPI.Abstractions.Services;
 
 public interface IJwtService
 {

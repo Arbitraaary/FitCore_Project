@@ -1,7 +1,6 @@
-﻿using System.Text.Json;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
-namespace FitCore_API.Controllers;
+namespace FitCoreAPI.Controllers;
 
 public abstract class BaseController : ControllerBase
 {

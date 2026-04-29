@@ -7,10 +7,6 @@ namespace FitCore_API.Entities;
 public class LocationModel
 {
     [Key]
-    [Column("id")]
-    public required Guid Id { get; set; }
-    
-    [Required]
     [Column("name")]
     [MaxLength(150)]
     public required string Name { get; set; }
@@ -21,6 +17,7 @@ public class LocationModel
     public required string Address { get; set; }
     
     public ICollection<RoomModel> Rooms { get; set; } = new List<RoomModel>();
+    public ICollection<CoachModel> Coaches { get; set; } = new List<CoachModel>();
     public ICollection<ManagerModel> Managers { get; set; } = new List<ManagerModel>();
     public ICollection<EquipmentModel> Equipments { get; set; } = new List<EquipmentModel>();
     public ICollection<RoomEquipmentModel> RoomEquipments { get; set; } = new List<RoomEquipmentModel>();

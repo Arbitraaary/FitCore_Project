@@ -1,6 +1,7 @@
 ﻿using FitCore_API.Abstractions.Repositories;
 using FitCore_API.Context;
 using FitCore_API.Entities;
+using FitCoreAPI.Abstractions.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace FitCore_API.Repositories;

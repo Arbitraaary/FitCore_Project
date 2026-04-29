@@ -12,8 +12,9 @@ public class RoomModel
     public required Guid Id { get; set; }
     
     [Required]
-    [Column("location_id")]
-    public required Guid LocationId { get; set; }
+    [Column("location_name")]
+    [MaxLength(150)]
+    public required string LocationName { get; set; }
     
     [Required]
     [Column("room_type")]

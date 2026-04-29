@@ -24,17 +24,17 @@
   } @else {
     <div class="clients-list">
       @for (client of clients(); track client.id) {
-        @let membership = activeMembership(client.id);
         <a [routerLink]="['/clients', client.id]" class="client-row">
           <div class="client-row__avatar">{{ initials(client.firstName, client.lastName) }}</div>
           <div class="client-row__body">
             <span class="client-row__name">{{ client.firstName }} {{ client.lastName }}</span>
             <span class="client-row__email">{{ client.email }}</span>
+            <span class="client-row__phone">{{ client.phoneNumber }}</span>
           </div>
-          <span class="client-row__phone">{{ client.phoneNumber }}</span>
+
           <div class="client-row__badge">
-            @if (membership) {
-              <span class="chip chip--success">{{ membershipName(membership.membershipTypeId) }}</span>
+            @if (client.activeMembership) {
+              <span class="chip chip--success">{{client.activeMembership.name }}</span>
             } @else {
               <span class="chip chip--neutral">No membership</span>
             }

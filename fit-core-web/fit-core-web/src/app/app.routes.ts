@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, guestGuard, managerGuard } from './core/guards/auth.guard';
+import { authGuard, coachGuard, guestGuard, managerGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -15,9 +15,20 @@ export const routes: Routes = [
       import('./core/layout/shell.component/shell.component').then((m) => m.ShellComponent),
     children: [
       {
-        path: 'dashboard',
+        canActivate: [coachGuard],
+        path: 'dashboard/coach',
         loadComponent: () =>
-          import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+          import('./features/dashboard/dashboard-coach.component/dashboard-coach.component').then(
+            (m) => m.DashboardCoachComponent,
+          ),
+      },
+      {
+        canActivate: [managerGuard],
+        path: 'dashboard/manager',
+        loadComponent: () =>
+          import('./features/dashboard/dashboard-manager.component/dashboard-manager.component').then(
+            (m) => m.DashboardManagerComponent,
+          ),
       },
       // ── Manager-only routes ──────────────────────────────────────────────
       {
@@ -97,7 +108,7 @@ export const routes: Routes = [
           ),
       },
       // ─── Default redirect ────────────────────────────────────────────────
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: '', redirectTo: `dashboard`, pathMatch: 'full' },
     ],
   },
   { path: '**', redirectTo: 'dashboard' },

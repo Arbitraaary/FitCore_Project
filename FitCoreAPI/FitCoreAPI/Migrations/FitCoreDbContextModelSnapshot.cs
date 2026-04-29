@@ -18,7 +18,7 @@ namespace FitCore_API.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("public")
-                .HasAnnotation("ProductVersion", "9.0.14")
+                .HasAnnotation("ProductVersion", "9.0.15")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "uuid-ossp");
@@ -107,12 +107,20 @@ namespace FitCore_API.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
+                    b.Property<string>("LocationName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("location_name");
+
                     b.Property<string>("Specialization")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("specialization");
 
                     b.HasKey("UserId");
+
+                    b.HasIndex("LocationName");
 
                     b.ToTable("coaches", "public");
                 });
@@ -131,9 +139,11 @@ namespace FitCore_API.Migrations
                         .HasColumnType("text")
                         .HasColumnName("equipment_type");
 
-                    b.Property<Guid>("LocationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("location_id");
+                    b.Property<string>("LocationName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("location_name");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer")
@@ -141,7 +151,7 @@ namespace FitCore_API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LocationId");
+                    b.HasIndex("LocationName");
 
                     b.ToTable("equipments", "public");
                 });
@@ -188,8 +198,7 @@ namespace FitCore_API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CoachId")
-                        .IsUnique();
+                    b.HasIndex("CoachId");
 
                     b.HasIndex("RoomId");
 
@@ -198,11 +207,10 @@ namespace FitCore_API.Migrations
 
             modelBuilder.Entity("FitCore_API.Entities.LocationModel", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id")
-                        .HasDefaultValueSql("uuid_generate_v4()");
+                    b.Property<string>("Name")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("name");
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -210,13 +218,7 @@ namespace FitCore_API.Migrations
                         .HasColumnType("character varying(150)")
                         .HasColumnName("address");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)")
-                        .HasColumnName("name");
-
-                    b.HasKey("Id");
+                    b.HasKey("Name");
 
                     b.ToTable("locations", "public");
                 });
@@ -227,13 +229,15 @@ namespace FitCore_API.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
-                    b.Property<Guid>("LocationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("location_id");
+                    b.Property<string>("LocationName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("location_name");
 
                     b.HasKey("UserId");
 
-                    b.HasIndex("LocationId");
+                    b.HasIndex("LocationName");
 
                     b.ToTable("managers", "public");
                 });
@@ -337,8 +341,7 @@ namespace FitCore_API.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.HasIndex("CoachId")
-                        .IsUnique();
+                    b.HasIndex("CoachId");
 
                     b.HasIndex("RoomId");
 
@@ -358,9 +361,11 @@ namespace FitCore_API.Migrations
                         .HasColumnType("text")
                         .HasColumnName("equipment_type");
 
-                    b.Property<Guid>("LocationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("location_id");
+                    b.Property<string>("LocationName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("location_name");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer")
@@ -372,7 +377,7 @@ namespace FitCore_API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LocationId");
+                    b.HasIndex("LocationName");
 
                     b.HasIndex("RoomId");
 
@@ -391,9 +396,11 @@ namespace FitCore_API.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("capacity");
 
-                    b.Property<Guid>("LocationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("location_id");
+                    b.Property<string>("LocationName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("location_name");
 
                     b.Property<string>("RoomType")
                         .IsRequired()
@@ -402,7 +409,7 @@ namespace FitCore_API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LocationId");
+                    b.HasIndex("LocationName");
 
                     b.ToTable("rooms", "public");
                 });
@@ -529,11 +536,19 @@ namespace FitCore_API.Migrations
 
             modelBuilder.Entity("FitCore_API.Entities.CoachModel", b =>
                 {
+                    b.HasOne("FitCore_API.Entities.LocationModel", "Location")
+                        .WithMany("Coaches")
+                        .HasForeignKey("LocationName")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("FitCore_API.Entities.UserModel", "User")
                         .WithOne("Coach")
                         .HasForeignKey("FitCore_API.Entities.CoachModel", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Location");
 
                     b.Navigation("User");
                 });
@@ -542,7 +557,7 @@ namespace FitCore_API.Migrations
                 {
                     b.HasOne("FitCore_API.Entities.LocationModel", "Location")
                         .WithMany("Equipments")
-                        .HasForeignKey("LocationId")
+                        .HasForeignKey("LocationName")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -552,8 +567,8 @@ namespace FitCore_API.Migrations
             modelBuilder.Entity("FitCore_API.Entities.GroupTrainingSessionModel", b =>
                 {
                     b.HasOne("FitCore_API.Entities.CoachModel", "Coach")
-                        .WithOne("GroupTrainingSession")
-                        .HasForeignKey("FitCore_API.Entities.GroupTrainingSessionModel", "CoachId")
+                        .WithMany("GroupTrainingSessions")
+                        .HasForeignKey("CoachId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -572,7 +587,7 @@ namespace FitCore_API.Migrations
                 {
                     b.HasOne("FitCore_API.Entities.LocationModel", "Location")
                         .WithMany("Managers")
-                        .HasForeignKey("LocationId")
+                        .HasForeignKey("LocationName")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -615,8 +630,8 @@ namespace FitCore_API.Migrations
                         .IsRequired();
 
                     b.HasOne("FitCore_API.Entities.CoachModel", "Coach")
-                        .WithOne("PersonalTrainingSession")
-                        .HasForeignKey("FitCore_API.Entities.PersonalTrainingSessionModel", "CoachId")
+                        .WithMany("PersonalTrainingSessions")
+                        .HasForeignKey("CoachId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -637,7 +652,7 @@ namespace FitCore_API.Migrations
                 {
                     b.HasOne("FitCore_API.Entities.LocationModel", "Location")
                         .WithMany("RoomEquipments")
-                        .HasForeignKey("LocationId")
+                        .HasForeignKey("LocationName")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -656,7 +671,7 @@ namespace FitCore_API.Migrations
                 {
                     b.HasOne("FitCore_API.Entities.LocationModel", "Location")
                         .WithMany("Rooms")
-                        .HasForeignKey("LocationId")
+                        .HasForeignKey("LocationName")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -674,9 +689,9 @@ namespace FitCore_API.Migrations
 
             modelBuilder.Entity("FitCore_API.Entities.CoachModel", b =>
                 {
-                    b.Navigation("GroupTrainingSession");
+                    b.Navigation("GroupTrainingSessions");
 
-                    b.Navigation("PersonalTrainingSession");
+                    b.Navigation("PersonalTrainingSessions");
                 });
 
             modelBuilder.Entity("FitCore_API.Entities.GroupTrainingSessionModel", b =>
@@ -688,6 +703,8 @@ namespace FitCore_API.Migrations
 
             modelBuilder.Entity("FitCore_API.Entities.LocationModel", b =>
                 {
+                    b.Navigation("Coaches");
+
                     b.Navigation("Equipments");
 
                     b.Navigation("Managers");

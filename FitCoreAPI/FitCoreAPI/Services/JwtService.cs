@@ -4,6 +4,7 @@ using System.Text;
 using FitCore_API.Abstractions.Services;
 using FitCore_API.DTOs;
 using FitCore_API.Entities;
+using FitCoreAPI.Abstractions.Services;
 using Microsoft.IdentityModel.Tokens;
 
 namespace FitCore_API.Services;
@@ -48,7 +49,7 @@ public class JwtService:  IJwtService
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Lax,
+            SameSite = SameSiteMode.None,
             Path = "/",
             Expires = DateTimeOffset.UtcNow.AddHours(8)
         };

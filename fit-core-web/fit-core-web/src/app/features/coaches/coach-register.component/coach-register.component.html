@@ -65,6 +65,17 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <mat-icon matPrefix>password</mat-icon>
+          <input matInput type="password" formControlName="password" />
+          @if (form.get('password')?.hasError('required') && form.get('password')?.touched) {
+            <mat-error>Password is required</mat-error>
+          } @else if (form.get('password')?.hasError('minlength') && form.get('password')?.touched) {
+            <mat-error>Password must be at least 6 characters long</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
           <mat-label>Specialization</mat-label>
           <mat-icon matPrefix>sports</mat-icon>
           <mat-select formControlName="specialization">
@@ -74,6 +85,17 @@
           </mat-select>
           @if (form.get('specialization')?.hasError('required') && form.get('specialization')?.touched) {
             <mat-error>Specialization is required</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Location</mat-label>
+          <mat-icon matPrefix>apartment</mat-icon>
+          <mat-select [disabled]="true" formControlName="locationName">
+              <mat-option [value]="userLocation()">{{ userLocation() }}</mat-option>
+          </mat-select>
+          @if (form.get('locationName')?.hasError('required') && form.get('locationName')?.touched) {
+            <mat-error>Location is required</mat-error>
           }
         </mat-form-field>
 

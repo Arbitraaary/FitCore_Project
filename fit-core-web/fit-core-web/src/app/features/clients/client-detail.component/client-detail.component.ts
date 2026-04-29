@@ -1,4 +1,4 @@
-import { Component, inject, computed, input } from '@angular/core';
+import { Component, inject, computed, input, signal, effect, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,6 +13,14 @@ import { SectionCardComponent } from '../../../shared/section-card.component/sec
 import { AssignMembershipDialogComponent } from '../assign-membership-dialog.component/assign-membership-dialog.component';
 import { AssignPersonalDialogComponent } from '../assign-personal-dialog.component/assign-personal-dialog.component';
 import { AssignGroupDialogComponent } from '../assign-group-dialog.component/assign-group-dialog.component';
+import {
+  Client,
+  ClientMembership,
+  GroupTrainingSession,
+  MembershipType,
+  PersonalTrainingSession,
+} from '../../../core/models/types';
+import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-client-detail',
@@ -29,7 +37,7 @@ import { AssignGroupDialogComponent } from '../assign-group-dialog.component/ass
   templateUrl: './client-detail.component.html',
   styleUrls: ['./client-detail.component.scss'],
 })
-export class ClientDetailComponent {
+export class ClientDetailComponent implements OnInit {
   id = input.required<string>();
 
   private clientSvc = inject(ClientService);
@@ -38,12 +46,59 @@ export class ClientDetailComponent {
   private coachSvc = inject(CoachService);
   private dialog = inject(MatDialog);
 
-  client = computed(() => this.clientSvc.getById(this.id()));
-  memberships = computed(() => this.membershipSvc.getByClientId(this.id()));
-  activeMem = computed(() => this.membershipSvc.getActiveByClientId(this.id()));
-  personal = computed(() => this.sessionSvc.getPersonalByClientId(this.id()));
-  group = computed(() => this.sessionSvc.getGroupByClientId(this.id()));
+  client = signal<Client | null>(null);
+  memberships = computed(() => this.clientMemberships());
+  activeMem = computed(() => this.clientMemberships().find((m) => m.status === 'active'));
+  personal = signal<PersonalTrainingSession[]>([]);
+  group = signal<GroupTrainingSession[]>([]);
+  loading = signal(true);
+  clientMemberships = signal<ClientMembership[]>([]);
+  membershipTypes = signal<MembershipType[]>([]);
 
+  ngOnInit() {
+    this.loading.set(true);
+    this._updateClient();
+    this._updateMembershipTypes();
+    this._updateMemberships();
+    this._updatePersonalSession();
+    this._updateGroupSession();
+    this.loading.set(false);
+  }
+
+  private _updateClient() {
+    this.clientSvc.getById(this.id()).subscribe((data) => {
+      this.client.set(data);
+    });
+  }
+
+  private _updateMembershipTypes() {
+    this.membershipSvc.getMembershipTypes().subscribe((types) => {
+      this.membershipTypes.set(types);
+    });
+  }
+
+  private _updateMemberships() {
+    this.membershipSvc.getByClientId(this.id()).subscribe((data) => {
+      this.clientMemberships.set(data);
+    });
+  }
+
+  private _updatePersonalSession() {
+    this.sessionSvc.getPersonalByClientId(this.id()).subscribe({
+      next: (data) => {
+        this.personal.set(data);
+      },
+      error: (err) => console.log(err),
+    });
+  }
+  private _updateGroupSession() {
+    this.sessionSvc.getGroupByClientId(this.id()).subscribe({
+      next: (data) => {
+        this.group.set(data);
+      },
+      error: (err) => console.log(err),
+    });
+  }
   initials = computed(() => {
     const c = this.client();
     return c ? `${c.firstName[0]}${c.lastName[0]}`.toUpperCase() : '?';
@@ -55,11 +110,11 @@ export class ClientDetailComponent {
   });
 
   membershipName(typeId: string): string {
-    return this.membershipSvc.getMembershipTypeName(typeId);
+    return this.membershipSvc.getMembershipTypeName(typeId, this.membershipTypes());
   }
 
   coachName(coachId: string): string {
-    const c = this.coachSvc.getById(coachId);
+    const c = this.coachSvc.getByIdRaw(coachId);
     return c ? `${c.firstName} ${c.lastName}` : '—';
   }
 

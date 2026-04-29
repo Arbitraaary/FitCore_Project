@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using FitCore_API.Abstractions.Services;
+using FitCoreAPI.Abstractions.Services;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace FitCore_API.Services;

@@ -12,8 +12,9 @@ public class EquipmentModel
     public required int Id { get; set; }
     
     [Required]
-    [Column("location_id")]
-    public required Guid LocationId { get; set; }
+    [Column("location_name")]
+    [MaxLength(150)]
+    public required string LocationName { get; set; }
     
     [Required]
     [Column("equipment_type")]

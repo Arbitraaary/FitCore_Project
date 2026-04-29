@@ -12,4 +12,5 @@ public interface IPersonalTrainingSessionRepository
     public Task AddAsync(PersonalTrainingSessionModel session, CancellationToken ct);
     public Task UpdateAsync(PersonalTrainingSessionModel session, CancellationToken ct);
     public Task DeleteAsync(Guid sessionId, CancellationToken ct);
+    public Task<List<PersonalTrainingSessionModel>> GetByLocationAsync(string locationName, CancellationToken ct);
 }

@@ -3,7 +3,7 @@
 public enum ESpecializationType
 {
     Box,
-    Carate,
+    Karate,
     Swim,
     Yoga,
     Stretching,

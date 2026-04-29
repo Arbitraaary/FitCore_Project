@@ -1,6 +1,7 @@
 ﻿using FitCore_API.Abstractions.Repositories;
 using FitCore_API.Abstractions.Services;
 using FitCore_API.DTOs;
+using FitCoreAPI.Abstractions.Services;
 
 namespace FitCore_API.Services;
 

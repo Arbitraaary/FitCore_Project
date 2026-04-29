@@ -1,12 +1,12 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthService } from '../services/auth.service';
+import { UserService } from '../services/user.service';
 
 export const authGuard: CanActivateFn = () => {
-  const auth = inject(AuthService);
+  const userSvc = inject(UserService);
   const router = inject(Router);
 
-  if (!auth.isLoggedIn()) {
+  if (!userSvc.isLoggedIn()) {
     router.navigate(['/login']);
     return false;
   }
@@ -14,14 +14,14 @@ export const authGuard: CanActivateFn = () => {
 };
 
 export const managerGuard: CanActivateFn = () => {
-  const auth = inject(AuthService);
+  const userSvc = inject(UserService);
   const router = inject(Router);
 
-  if (!auth.isLoggedIn()) {
+  if (!userSvc.isLoggedIn()) {
     router.navigate(['/login']);
     return false;
   }
-  if (!auth.isManager()) {
+  if (!userSvc.isManager()) {
     router.navigate(['/dashboard']);
     return false;
   }
@@ -29,14 +29,14 @@ export const managerGuard: CanActivateFn = () => {
 };
 
 export const coachGuard: CanActivateFn = () => {
-  const auth = inject(AuthService);
+  const userSvc = inject(UserService);
   const router = inject(Router);
 
-  if (!auth.isLoggedIn()) {
+  if (!userSvc.isLoggedIn()) {
     router.navigate(['/login']);
     return false;
   }
-  if (!auth.isCoach()) {
+  if (!userSvc.isCoach()) {
     router.navigate(['/dashboard']);
     return false;
   }
@@ -44,10 +44,10 @@ export const coachGuard: CanActivateFn = () => {
 };
 
 export const guestGuard: CanActivateFn = () => {
-  const auth = inject(AuthService);
+  const userSvc = inject(UserService);
   const router = inject(Router);
 
-  if (auth.isLoggedIn()) {
+  if (userSvc.isLoggedIn()) {
     router.navigate(['/dashboard']);
     return false;
   }

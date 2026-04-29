@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -29,7 +29,7 @@ import { GroupTrainingSession } from '../../../core/models/types';
   templateUrl: './assign-group-dialog.component.html',
   styleUrls: ['./assign-group-dialog.component.scss'],
 })
-export class AssignGroupDialogComponent {
+export class AssignGroupDialogComponent implements OnInit {
   private sessionSvc = inject(SessionService);
   private coachSvc = inject(CoachService);
   private dialogRef = inject(MatDialogRef<AssignGroupDialogComponent>);
@@ -39,8 +39,16 @@ export class AssignGroupDialogComponent {
   selected = signal<string | null>(null);
   success = signal(false);
   errorMsg = signal('');
+  allSessions = signal<GroupTrainingSession[]>([]);
 
-  allSessions = computed(() => this.sessionSvc.getAllGroup());
+  ngOnInit() {
+    this.sessionSvc.getAllGroup().subscribe({
+      next: data => {
+        this.allSessions.set(data);
+      },
+      error: error => console.log(error),
+    });
+  }
 
   filtered = computed(() => {
     const q = this.search().toLowerCase();
@@ -53,11 +61,11 @@ export class AssignGroupDialogComponent {
   });
 
   isEnrolled(sessionId: string): boolean {
-    return this.sessionSvc.isClientEnrolledInGroup(this.data.clientId, sessionId);
+    return this.sessionSvc.isClientEnrolledInGroupRaw(this.data.clientId, sessionId);
   }
 
   isFull(sessionId: string): boolean {
-    return this.sessionSvc.isGroupFull(sessionId);
+    return this.sessionSvc.isGroupFullRaw(sessionId);
   }
 
   spotsLeft(s: GroupTrainingSession): number {
@@ -65,7 +73,7 @@ export class AssignGroupDialogComponent {
   }
 
   coachName(coachId: string): string {
-    const c = this.coachSvc.getById(coachId);
+    const c = this.coachSvc.getByIdRaw(coachId);
     return c ? `${c.firstName} ${c.lastName}` : '—';
   }
 

@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -10,6 +10,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CoachService } from '../../../core/services/coach.service';
 import { SessionService } from '../../../core/services/session.service';
 import { RouterLink } from '@angular/router';
+import { Coach, CoachWithSessionCount } from '../../../core/models/types';
+import { tap } from 'rxjs';
+import { ManagerService } from '../../../core/services/manager.service';
+import { UserService } from '../../../core/services/user.service';
 
 @Component({
   selector: 'app-coaches-list',
@@ -28,28 +32,39 @@ import { RouterLink } from '@angular/router';
   templateUrl: './coaches-list.component.html',
   styleUrls: ['./coaches-list.component.scss'],
 })
-export class CoachesListComponent {
+export class CoachesListComponent implements OnInit {
+  userSvc = inject(UserService);
+  managerSvc = inject(ManagerService);
+  sessionSvc = inject(SessionService);
+  user = this.userSvc.currentUser;
   search = signal('');
-  private coachSvc = inject(CoachService);
+  allCoaches = signal<CoachWithSessionCount[]>([]);
+  ngOnInit() {
+    if(this.user === null) return;
+    this.managerSvc.getMyCoachesWithSessionCount(this.user()!.id).subscribe({
+      next: data => {
+      this.allCoaches.set(data);
+      },
+      error: error => console.log(error)
+    });
+  }
+
   coaches = computed(() => {
     const q = this.search().toLowerCase();
-    return this.coachSvc
-      .getAll()
-      .filter(
-        (c) =>
-          !q ||
-          c.firstName.toLowerCase().includes(q) ||
-          c.lastName.toLowerCase().includes(q) ||
-          c.email.toLowerCase().includes(q) ||
-          c.specialization.toLowerCase().includes(q),
-      );
+    return this.allCoaches().filter(
+      (c) =>
+        !q ||
+        c.firstName.toLowerCase().includes(q) ||
+        c.lastName.toLowerCase().includes(q) ||
+        c.email.toLowerCase().includes(q) ||
+        c.specialization.toLowerCase().includes(q),
+    );
   });
-  private sessionSvc = inject(SessionService);
 
   sessionCount(coachId: string): number {
     return (
-      this.sessionSvc.getPersonalByCoachId(coachId).length +
-      this.sessionSvc.getGroupByCoachId(coachId).length
+      this.sessionSvc.getPersonalByCoachIdRaw(coachId).length +
+      this.sessionSvc.getGroupByCoachIdRaw(coachId).length
     );
   }
 

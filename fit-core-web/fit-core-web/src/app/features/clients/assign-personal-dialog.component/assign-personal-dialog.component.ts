@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule, formatDate } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -12,8 +12,13 @@ import { MatDividerModule } from '@angular/material/divider';
 import { CoachService } from '../../../core/services/coach.service';
 import { RoomService } from '../../../core/services/room.service';
 import { SessionService } from '../../../core/services/session.service';
-import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from '@angular/material/datepicker';
+import {
+  MatDatepicker,
+  MatDatepickerInput,
+  MatDatepickerToggle,
+} from '@angular/material/datepicker';
 import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
+import { Coach, Room } from '../../../core/models/types';
 
 @Component({
   selector: 'app-assign-personal-dialog',
@@ -37,16 +42,31 @@ import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/cor
   templateUrl: './assign-personal-dialog.component.html',
   styleUrls: ['./assign-personal-dialog.component.scss'],
 })
-export class AssignPersonalDialogComponent {
+export class AssignPersonalDialogComponent implements OnInit {
   private fb = inject(FormBuilder);
   private coachSvc = inject(CoachService);
   private roomSvc = inject(RoomService);
   private sessionSvc = inject(SessionService);
   private dialogRef = inject(MatDialogRef<AssignPersonalDialogComponent>);
   data = inject(MAT_DIALOG_DATA) as { clientId: string; clientName: string };
+  coaches = signal<Coach[]>([]);
+  rooms = signal<Room[]>([]);
 
-  coaches = this.coachSvc.getAll();
-  rooms = this.roomSvc.getAll();
+  ngOnInit() {
+    this.coachSvc.getAll().subscribe({
+      next: data => {
+        this.coaches.set(data)
+      },
+      error: error => console.log(error),
+    });
+
+    this.roomSvc.getAll().subscribe({
+      next: data => {
+        this.rooms.set(data);
+      },
+      error: error => console.log(error),
+    });
+  }
 
   success = signal(false);
   error = signal('');
@@ -67,14 +87,6 @@ export class AssignPersonalDialogComponent {
 
   hours = Array.from({ length: 14 }, (_, i) => i + 7); // 07:00–20:00
 
-  coachName(id: string): string {
-    const c = this.coaches.find((c) => c.id === id);
-    return c ? `${c.firstName} ${c.lastName} (${c.specialization})` : '';
-  }
-
-  roomLabel(r: { roomType: string; capacity: number }): string {
-    return `${r.roomType} — capacity ${r.capacity}`;
-  }
 
   submit() {
     if (this.step1.invalid || this.step2.invalid) return;
@@ -94,10 +106,17 @@ export class AssignPersonalDialogComponent {
       name: name!,
       startTime: start.toISOString(),
       endTime: end.toISOString(),
+    }).subscribe({
+      next: data => {
+        this.success.set(true);
+        setTimeout(() => this.dialogRef.close(true), 1100);
+      },
+      error: error => {
+        console.log(error);
+        setTimeout(() => this.dialogRef.close(true), 1100);
+      }
     });
 
-    this.success.set(true);
-    setTimeout(() => this.dialogRef.close(true), 1100);
   }
 
   close() {

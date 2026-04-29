@@ -31,8 +31,8 @@
               <mat-label>Coach</mat-label>
               <mat-icon matPrefix>sports</mat-icon>
               <mat-select formControlName="coachId">
-                @for (c of coaches; track c.id) {
-                  <mat-option [value]="c.id">{{ coachName(c.id) }}</mat-option>
+                @for (c of coaches(); track c.id) {
+                  <mat-option [value]="c.id">{{ c.firstName + ' ' + c.lastName }}</mat-option>
                 }
               </mat-select>
               @if (step1.get('coachId')?.hasError('required') && step1.get('coachId')?.touched) {
@@ -53,8 +53,8 @@
               <mat-label>Room</mat-label>
               <mat-icon matPrefix>room</mat-icon>
               <mat-select formControlName="roomId">
-                @for (r of rooms; track r.id) {
-                  <mat-option [value]="r.id">{{ roomLabel(r) }}</mat-option>
+                @for (r of rooms(); track r.id) {
+                  <mat-option [value]="r.id">{{ `${r.roomType} — capacity ${r.capacity}` }}</mat-option>
                 }
               </mat-select>
               @if (step1.get('roomId')?.hasError('required') && step1.get('roomId')?.touched) {

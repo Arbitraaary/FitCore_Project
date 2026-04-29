@@ -1,40 +1,87 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Client } from '../models/types';
-import { MOCK_CLIENTS } from '../data/mock.data';
+import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 export interface CreateClientDto {
   email: string;
   firstName: string;
   lastName: string;
   phoneNumber: string;
+  password: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class ClientService {
-  private _clients = signal<Client[]>([...MOCK_CLIENTS]);
-  readonly clients = this._clients.asReadonly();
+  private http = inject(HttpClient);
+  private readonly authUrl = environment.apiUrl + '/Auth';
+  private readonly apiUrl = environment.apiUrl + '/Clients';
 
-  getAll(): Client[] {
-    return this._clients();
-  }
 
-  getById(id: string): Client | undefined {
-    return this._clients().find((c) => c.id === id);
-  }
+  public getByIdRaw(id: string): Client | undefined {
+    let client: Client | undefined = undefined;
+    this.getById(id).subscribe({
+      next: (data) => {
+        client = data;
+        console.log(client);
+      },
+      error: (err) => {
+        console.log(err);
+      },
+    });
 
-  create(dto: CreateClientDto): Client {
-    const client: Client = {
-      id: `usr-cli-${Date.now()}`,
-      userType: 'client',
-      ...dto,
-    };
-    this._clients.update((list) => [...list, client]);
     return client;
   }
 
-  emailExists(email: string, excludeId?: string): boolean {
-    return this._clients().some(
-      (c) => c.email.toLowerCase() === email.toLowerCase() && c.id !== excludeId,
-    );
+  public getAllRaw(): Client[] {
+    let clients: Client[] = [];
+    this.getAll().subscribe({
+      next: (data) => {
+        clients = data;
+      },
+      error: (err) => {
+        console.log(err);
+      },
+    });
+    return clients;
+  }
+
+  createRaw(dto: CreateClientDto): any {
+    this.create(dto).subscribe({
+      next: () => {},
+      error: (err) => console.log(err),
+    });
+  }
+
+  emailExistsRaw(email: string, excludeId?: string): boolean {
+    let isEmailExist: boolean = false;
+    this.emailExists(email, excludeId).subscribe({
+      next: () => {
+        isEmailExist = true;
+      },
+      error: (err) => console.log(err),
+    });
+    return isEmailExist;
+  }
+  getAll(): Observable<Client[]> {
+    return this.http.get<Client[]>(`${this.apiUrl}/GetClients`, { withCredentials: true });
+  }
+  getAllAndMembership(): Observable<Client[]> {
+    return this.http.get<Client[]>(`${this.apiUrl}/GetClientsAndActiveMembership`, {
+      withCredentials: true,
+    });
+  }
+
+  getById(id: string): Observable<Client> {
+    return this.http.get<Client>(`${this.apiUrl}/GetClient/${id}`, { withCredentials: true });
+  }
+
+  create(dto: CreateClientDto): Observable<any> {
+    return this.http.post(`${this.authUrl}/RegisterClient`, dto, { withCredentials: true });
+  }
+
+  emailExists(email: string, excludeId?: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.authUrl}/CheckEmail`, { params: { email }, withCredentials: true});
   }
 }

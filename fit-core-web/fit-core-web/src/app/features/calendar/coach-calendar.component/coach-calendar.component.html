@@ -13,9 +13,9 @@
         <h1>{{ coachFullName() }}'s Calendar</h1>
         <p>
           {{ totalThisWeek() }} session{{ totalThisWeek() !== 1 ? 's' : '' }} this week
-          @if (coach()?.specialization) {
+          @if (coach?.specialization) {
             &nbsp;·&nbsp;
-            <span class="chip chip--primary" style="font-size:.85rem">{{ coach()!.specialization }}</span>
+            <span class="chip chip--primary" style="font-size:.85rem">{{ coach!.specialization }}</span>
           }
         </p>
       </div>

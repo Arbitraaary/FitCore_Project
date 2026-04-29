@@ -1,6 +1,6 @@
 ﻿using FitCore_API.Entities;
 
-namespace FitCore_API.Abstractions.Repositories;
+namespace FitCoreAPI.Abstractions.Repositories;
 
 public interface IMembershipTypeRepository
 {

@@ -3,11 +3,11 @@
 namespace FitCore_API.DTOs;
 
 public record CoachRegistrationDto ( 
+    string Email,
     string FirstName,
     string LastName,
-    string Email,
     string PhoneNumber,
     string Password,
     ESpecializationType Specialization,
-    Guid LocationId
+    string LocationName
 );

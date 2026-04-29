@@ -51,11 +51,13 @@ public sealed class FitCoreDbContext: DbContext
             entity.Property(u => u.PhoneNumber).IsRequired().HasMaxLength(15);
             entity.Property(u => u.PasswordHash).IsRequired().HasMaxLength(44);
             entity.Property(u => u.PasswordSalt).IsRequired().HasMaxLength(24);
-            entity.Property(u => u.UserType)
-                  .IsRequired()
-                  .HasConversion<string>();
-
+            entity.Property(u => u.UserType).IsRequired()
+                  .HasConversion(
+                  v => v.ToString().ToLower(),
+                  v => (EUserType)Enum.Parse(typeof(EUserType), v, true));
+            
             entity.HasIndex(u => u.Email).IsUnique();
+            
             entity.HasIndex(u => u.PhoneNumber).IsUnique();
 
             entity.HasOne(u => u.Client)
@@ -90,7 +92,7 @@ public sealed class FitCoreDbContext: DbContext
 
             entity.HasOne(m => m.Location)
                   .WithMany(l => l.Managers)
-                  .HasForeignKey(m => m.LocationId)
+                  .HasForeignKey(m => m.LocationName)
                   .OnDelete(DeleteBehavior.Restrict);
         });
 
@@ -100,6 +102,9 @@ public sealed class FitCoreDbContext: DbContext
             entity.Property(c => c.Specialization)
                   .IsRequired()
                   .HasConversion<string>();
+            entity.HasOne(c => c.Location)
+                  .WithMany(l => l.Coaches)
+                  .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<ClientModel>(entity =>
@@ -109,9 +114,7 @@ public sealed class FitCoreDbContext: DbContext
 
         modelBuilder.Entity<LocationModel>(entity =>
         {
-            entity.HasKey(l => l.Id);
-            entity.Property(l => l.Id)
-                  .HasDefaultValueSql("uuid_generate_v4()");
+            entity.HasKey(l => l.Name);
 
             entity.Property(l => l.Name).IsRequired().HasMaxLength(150);
             entity.Property(l => l.Address).IsRequired().HasMaxLength(150);
@@ -129,7 +132,7 @@ public sealed class FitCoreDbContext: DbContext
 
             entity.HasOne(r => r.Location)
                   .WithMany(l => l.Rooms)
-                  .HasForeignKey(r => r.LocationId)
+                  .HasForeignKey(r => r.LocationName)
                   .OnDelete(DeleteBehavior.Cascade);
         });
 
@@ -142,7 +145,7 @@ public sealed class FitCoreDbContext: DbContext
 
             entity.HasOne(e => e.Location)
                   .WithMany(l => l.Equipments)
-                  .HasForeignKey(e => e.LocationId)
+                  .HasForeignKey(e => e.LocationName)
                   .OnDelete(DeleteBehavior.Cascade);
         });
 
@@ -158,7 +161,7 @@ public sealed class FitCoreDbContext: DbContext
 
             entity.HasOne(re => re.Location)
                   .WithMany(l => l.RoomEquipments)
-                  .HasForeignKey(re => re.LocationId)
+                  .HasForeignKey(re => re.LocationName)
                   .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(re => re.Room)
@@ -226,8 +229,8 @@ public sealed class FitCoreDbContext: DbContext
                   .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(pt => pt.Coach)
-                  .WithOne(c => c.PersonalTrainingSession)
-                  .HasForeignKey<PersonalTrainingSessionModel>(pt => pt.CoachId)
+                  .WithMany(c => c.PersonalTrainingSessions)
+                  .HasForeignKey(pt => pt.CoachId)
                   .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(pt => pt.Room)
@@ -246,8 +249,8 @@ public sealed class FitCoreDbContext: DbContext
             entity.Property(gt => gt.Description).IsRequired().HasMaxLength(500);
 
             entity.HasOne(gt => gt.Coach)
-                  .WithOne(c => c.GroupTrainingSession)
-                  .HasForeignKey<GroupTrainingSessionModel>(gt => gt.CoachId)
+                  .WithMany(c => c.GroupTrainingSessions)
+                  .HasForeignKey(gt => gt.CoachId)
                   .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(gt => gt.Room)

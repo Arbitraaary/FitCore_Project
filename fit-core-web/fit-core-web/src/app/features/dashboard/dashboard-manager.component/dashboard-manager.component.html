@@ -1,0 +1,90 @@
+<div class="page-container">
+
+  <!-- ── Header ──────────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="dashboard-greeting">
+      <h1>{{ greeting() }}, {{ user()?.firstName }} 👋</h1>
+      <p>
+        <mat-icon class="inline-icon">location_on</mat-icon>
+        {{ location()?.name ?? "Location"}}&nbsp;·&nbsp;{{ location()?.address ?? "Unavailable"}}
+      </p>
+    </div>
+  </div>
+
+
+  <section class="stats-grid">
+    @for (s of stats(); track s.label) {
+      <a [routerLink]="s.route" class="stat-card stat-card--{{ s.color }}">
+
+        <div class="stat-card__body">
+          <div class="stat-card__icon">
+            <mat-icon>{{ s.icon }}</mat-icon>
+          </div>
+          <span class="stat-card__value">{{ s.value }}</span>
+          <span class="stat-card__label">{{ s.label }}</span>
+        </div>
+      </a>
+    }
+  </section>
+
+
+  <!-- ── Bottom grid ─────────────────────────────────────────────────────── -->
+  <div class="dashboard-bottom">
+
+    <!-- Upcoming sessions -->
+    <mat-card class="upcoming-card">
+      <div class="upcoming-card__header">
+        <mat-icon>schedule</mat-icon>
+        <h2>Upcoming Sessions</h2>
+      </div>
+      <mat-divider />
+
+      @if (upcomingSessions().length === 0) {
+        <div class="upcoming-card__empty">
+          <mat-icon>event_busy</mat-icon>
+          <span>No upcoming sessions</span>
+        </div>
+      } @else {
+        <ul class="session-list">
+          @for (s of upcomingSessions(); track s.id) {
+            <li class="session-item">
+              <div class="session-item__time">
+                <span class="session-item__date">{{ s.startTime | date:'EEE, MMM d' }}</span>
+                <span class="session-item__hour">{{ s.startTime | date:'HH:mm' }}</span>
+              </div>
+              <div class="session-item__info">
+                <span class="session-item__name">{{ s.name }}</span>
+                <span class="session-item__coach">{{ s.coachName }}</span>
+              </div>
+              <span [class.chip--accent]="s.type === 'Group'" [class.chip--primary]="s.type === 'Personal'"
+                    class="chip">
+                {{ s.type }}
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </mat-card>
+
+    <!-- Quick links -->
+    <mat-card class="quick-card">
+      <div class="upcoming-card__header">
+        <mat-icon>bolt</mat-icon>
+        <h2>Quick Actions</h2>
+      </div>
+      <mat-divider />
+
+      <div class="quick-links">
+        @for (ql of quickLinks(); track ql.route) {
+          <a [routerLink]="ql.route" class="quick-link">
+            <div class="quick-link__icon">
+              <mat-icon>{{ ql.icon }}</mat-icon>
+            </div>
+            <span class="quick-link__label">{{ ql.label }}</span>
+            <mat-icon class="quick-link__arrow">chevron_right</mat-icon>
+          </a>
+        }
+      </div>
+    </mat-card>
+  </div>
+</div>

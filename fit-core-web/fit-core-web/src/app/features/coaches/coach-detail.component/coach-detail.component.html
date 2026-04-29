@@ -1,6 +1,8 @@
 <div class="page-container">
 
-  @if (!coach()) {
+  @if (loading()) {
+    <div class="loading">Loading...</div>
+  } @else if (!coach()) {
     <div class="not-found">
       <mat-icon>person_off</mat-icon>
       <p>Coach not found.</p>
@@ -37,7 +39,6 @@
         <app-info-row icon="mail" label="Email" [value]="coach()!.email" />
         <app-info-row icon="phone" label="Phone" [value]="coach()!.phoneNumber" />
         <app-info-row icon="sports" label="Specialization" [value]="coach()!.specialization" />
-        <app-info-row icon="badge" label="Coach ID" [value]="coach()!.id" />
       </app-section-card>
 
       <!-- Stats -->

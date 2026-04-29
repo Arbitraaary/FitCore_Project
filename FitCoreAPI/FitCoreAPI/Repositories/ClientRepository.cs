@@ -27,7 +27,12 @@ public class ClientRepository: IClientRepository
 
     public async Task CreateAsync(ClientModel client, CancellationToken ct)
     {
-        _dbContext.Clients.Add(client);
+        await _dbContext.Clients.AddAsync(client, ct);
         await _dbContext.SaveChangesAsync(ct);
+    }
+
+    public async Task<List<ClientModel>> GetWithMembershipsAsync()
+    {
+        return await _dbContext.Clients.Include(c => c.User).Include(c => c.ClientMemberships).ThenInclude(cm => cm.MembershipType).ToListAsync();
     }
 }

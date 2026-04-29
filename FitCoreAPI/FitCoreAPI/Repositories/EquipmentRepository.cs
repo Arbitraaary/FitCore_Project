@@ -24,10 +24,10 @@ public class EquipmentRepository : IEquipmentRepository
         return await _dbContext.Equipments.ToListAsync(ct);
     }
 
-    public async Task<List<EquipmentModel>> GetByLocationIdAsync(Guid locationId, CancellationToken ct)
+    public async Task<List<EquipmentModel>> GetByLocationIdAsync(string locationName, CancellationToken ct)
     {
         return await _dbContext.Equipments
-            .Where(e => e.LocationId == locationId)
+            .Where(e => e.LocationName == locationName)
             .ToListAsync(ct);
     }
 

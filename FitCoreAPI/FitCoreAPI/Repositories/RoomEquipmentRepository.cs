@@ -31,10 +31,10 @@ public class RoomEquipmentRepository : IRoomEquipmentRepository
             .ToListAsync(ct);
     }
 
-    public async Task<List<RoomEquipmentModel>> GetByLocationIdAsync(Guid locationId, CancellationToken ct)
+    public async Task<List<RoomEquipmentModel>> GetByLocationIdAsync(string locationName, CancellationToken ct)
     {
         return await _dbContext.RoomEquipments
-            .Where(re => re.LocationId == locationId)
+            .Where(re => re.LocationName == locationName)
             .ToListAsync(ct);
     }
 

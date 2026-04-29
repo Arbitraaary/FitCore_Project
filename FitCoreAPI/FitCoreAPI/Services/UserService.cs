@@ -3,6 +3,9 @@ using FitCore_API.Abstractions.Services;
 using FitCore_API.Entities;
 using FitCore_API.Entities.Auxiliary; 
 using FitCore_API.DTOs;
+using FitCoreAPI.Abstractions.Repositories;
+using FitCoreAPI.Abstractions.Services;
+using FitCoreAPI.DTOs;
 
 namespace FitCore_API.Services;
 
@@ -13,7 +16,7 @@ public class UserService : IUserService
     private readonly ICoachRepository _coachRepository;
     private readonly IClientRepository _clientRepository;
     private readonly IPasswordService _passwordService;
-
+    
     public UserService(
         IUserRepository userRepository,
         IManagerRepository managerRepository,
@@ -30,13 +33,13 @@ public class UserService : IUserService
 
     public async Task<Guid> RegisterManagerAsync(ManagerRegistrationDto dto, CancellationToken ct)
     {
-        var baseUser = new BaseRegistrationDto(dto.FirstName, dto.LastName, dto.PhoneNumber, dto.Email, dto.Password);
+        var baseUser = new BaseRegistrationDto(dto.FirstName, dto.LastName, dto.Email, dto.PhoneNumber, dto.Password);
         var user = await CreateBaseUserAsync(baseUser, EUserType.Manager, ct);
 
         var manager = new ManagerModel
         {
             UserId = user.Id,
-            LocationId = dto.LocationId
+            LocationName = dto.LocationName
         };
 
         await _managerRepository.CreateAsync(manager, ct);
@@ -45,14 +48,14 @@ public class UserService : IUserService
 
     public async Task<Guid> RegisterCoachAsync(CoachRegistrationDto dto, CancellationToken ct)
     {
-        var baseUser = new BaseRegistrationDto(dto.FirstName, dto.LastName, dto.PhoneNumber, dto.Email, dto.Password);
+        var baseUser = new BaseRegistrationDto(dto.FirstName, dto.LastName, dto.Email, dto.PhoneNumber, dto.Password);
         var user = await CreateBaseUserAsync(baseUser, EUserType.Coach, ct);
 
         var coach = new CoachModel
         {
             UserId = user.Id,
             Specialization = dto.Specialization,
-            LocationId = dto.LocationId
+            LocationName = dto.LocationName
         };
 
         await _coachRepository.CreateAsync(coach, ct);
@@ -61,7 +64,7 @@ public class UserService : IUserService
 
     public async Task<Guid> RegisterClientAsync(ClientRegistrationDto dto, CancellationToken ct)
     {
-        var baseUser = new BaseRegistrationDto(dto.FirstName, dto.LastName, dto.PhoneNumber, dto.Email, dto.Password);
+        var baseUser = new BaseRegistrationDto(dto.FirstName, dto.LastName, dto.Email, dto.PhoneNumber, dto.Password);
         var user = await CreateBaseUserAsync(baseUser, EUserType.Client, ct);
 
         var client = new ClientModel
@@ -71,6 +74,30 @@ public class UserService : IUserService
 
         await _clientRepository.CreateAsync(client, ct);
         return user.Id;
+    }
+
+    public async Task<ManagerResponseDto> GetManager(Guid id, CancellationToken ct)
+    {
+        var manager = await _managerRepository.GetByIdAsync(id, ct);
+        if(manager == null)  throw new NullReferenceException("Manager not found");
+        
+        return new ManagerResponseDto(
+            manager.UserId, 
+            manager.User.UserType.ToString(),
+            manager.User.Email,
+            manager.User.PhoneNumber, 
+            manager.User.FirstName, 
+            manager.User.LastName, 
+            ((Func<LocationDto>)(() =>
+                {
+                    var locationModel = manager.Location;
+                    var locationDto = new LocationDto(
+                        locationModel.Name,
+                        locationModel.Address);
+                    return locationDto;
+                })
+            )()
+        );
     }
 
     private async Task<UserModel> CreateBaseUserAsync(BaseRegistrationDto dto, EUserType type, CancellationToken ct)

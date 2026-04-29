@@ -1,6 +1,7 @@
 ﻿using FitCore_API.Abstractions.Repositories;
 using FitCore_API.Context;
 using FitCore_API.Entities;
+using FitCoreAPI.Abstractions.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace FitCore_API.Repositories;
@@ -24,6 +25,14 @@ public class GroupTrainingSessionRepository : IGroupTrainingSessionRepository
         return await _dbContext.GroupTrainingSessions.ToListAsync(ct);
     }
 
+    public async Task<List<GroupTrainingSessionModel>> GetByClientIdAsync(Guid clientId, CancellationToken ct)
+    {
+        return await _dbContext.GroupTrainingSessions
+            .Include(s => s.ClientGroupSessions)
+            .Where(s => s.ClientGroupSessions.Any(cgs => cgs.ClientId == clientId))
+            .AsNoTracking()
+            .ToListAsync(ct);
+    }
     public async Task<List<GroupTrainingSessionModel>> GetByCoachIdAsync(Guid coachId, CancellationToken ct)
     {
         return await _dbContext.GroupTrainingSessions
@@ -58,5 +67,27 @@ public class GroupTrainingSessionRepository : IGroupTrainingSessionRepository
             _dbContext.GroupTrainingSessions.Remove(session);
             await _dbContext.SaveChangesAsync(ct);
         }
+    }
+    
+    public async Task<bool> IsFullAsync(Guid sessionId, CancellationToken ct)
+    {
+        var sessionData = await _dbContext.GroupTrainingSessions
+            .Where(s => s.Id == sessionId)
+            .Select(s => new 
+            { 
+                s.Capacity, 
+                EnrolledCount = s.ClientGroupSessions.Count() 
+            })
+            .FirstOrDefaultAsync(ct);
+
+        if (sessionData == null) return false;
+
+        return sessionData.EnrolledCount >= sessionData.Capacity;
+    }
+
+    public async Task<List<GroupTrainingSessionModel>> GetByLocationAsync(string locationName, CancellationToken ct)
+    {
+        return await _dbContext.GroupTrainingSessions.Include(gts => gts.ClientGroupSessions).Include(gts => gts.Room)
+            .Where(gts => gts.Room.LocationName == locationName).ToListAsync(ct);
     }
 }

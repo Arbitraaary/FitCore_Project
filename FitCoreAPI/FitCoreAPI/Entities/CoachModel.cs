@@ -15,11 +15,12 @@ public class CoachModel
     public required ESpecializationType Specialization { get; set; }
     
     [Required]
-    [Column("location_id")]
-    public required Guid LocationId { get; set; }
+    [Column("location_name")]
+    [MaxLength(150)]
+    public required string LocationName { get; set; }
     
     public UserModel User { get; set; } = null!;
     public LocationModel Location { get; set; } = null!;
-    public PersonalTrainingSessionModel? PersonalTrainingSession { get; set; }
-    public GroupTrainingSessionModel? GroupTrainingSession { get; set; }
+    public ICollection<PersonalTrainingSessionModel> PersonalTrainingSessions { get; set; } = new List<PersonalTrainingSessionModel>();
+    public ICollection<GroupTrainingSessionModel> GroupTrainingSessions { get; set; } = new List<GroupTrainingSessionModel>();
 }

@@ -17,7 +17,7 @@
       <p class="dialog__subtitle">Choose a membership plan to assign to this client.</p>
 
       <mat-radio-group (ngModelChange)="selected.set($event)" [ngModel]="selected()" class="type-list">
-        @for (t of types; track t.id) {
+        @for (t of types(); track t.id) {
           <label [class.type-card--selected]="selected() === t.id" class="type-card">
             <mat-radio-button [value]="t.id" />
             <div class="type-card__body">

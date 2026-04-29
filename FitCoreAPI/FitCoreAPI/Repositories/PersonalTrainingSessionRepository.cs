@@ -3,7 +3,7 @@ using FitCore_API.Context;
 using FitCore_API.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace FitCore_API.Repositories;
+namespace FitCoreAPI.Repositories;
 
 public class PersonalTrainingSessionRepository : IPersonalTrainingSessionRepository
 {
@@ -47,7 +47,7 @@ public class PersonalTrainingSessionRepository : IPersonalTrainingSessionReposit
 
     public async Task AddAsync(PersonalTrainingSessionModel session, CancellationToken ct)
     {
-        _dbContext.PersonalTrainingSessions.Add(session);
+        await _dbContext.PersonalTrainingSessions.AddAsync(session, ct);
         await _dbContext.SaveChangesAsync(ct);
     }
 
@@ -65,5 +65,11 @@ public class PersonalTrainingSessionRepository : IPersonalTrainingSessionReposit
             _dbContext.PersonalTrainingSessions.Remove(session);
             await _dbContext.SaveChangesAsync(ct);
         }
+    }
+
+    public async Task<List<PersonalTrainingSessionModel>> GetByLocationAsync(string locationName, CancellationToken ct)
+    {
+        return await _dbContext.PersonalTrainingSessions.Include(pts => pts.Room)
+            .Where(pts => pts.Room.LocationName == locationName).ToListAsync(ct);
     }
 }

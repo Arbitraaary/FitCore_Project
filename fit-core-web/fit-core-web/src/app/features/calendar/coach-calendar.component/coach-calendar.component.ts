@@ -16,6 +16,8 @@ import { CalendarEvent } from '../shared/calendar-event.model';
 import { weekStart, addDays } from '../shared/calendar.utils';
 import { WeekGridComponent } from '../shared/week-grid.component/week-grid.component';
 import { EventDetailDialogComponent } from '../event-detail-dialog.component/event-detail-dialog.component';
+import { Coach } from '../../../core/models/types';
+import { UserService } from '../../../core/services/user.service';
 
 @Component({
   selector: 'app-coach-calendar',
@@ -41,20 +43,19 @@ export class CoachCalendarComponent {
   private coachSvc = inject(CoachService);
   private clientSvc = inject(ClientService);
   private roomSvc = inject(RoomService);
-  private auth = inject(AuthService);
+  private userSvc = inject(UserService);
   private dialog = inject(MatDialog);
 
-  isManager = this.auth.isManager;
+  isManager = this.userSvc.isManager;
 
   currentWeekStart = signal(weekStart(new Date()));
 
   // Filter: 'all' | 'personal' | 'group'
   filter = signal<'all' | 'personal' | 'group'>('all');
 
-  coach = computed(() => this.coachSvc.getById(this.coachId()));
-
+  coach = this.coachSvc.getByIdRaw(this.coachId.toString());
   coachFullName = computed(() => {
-    const c = this.coach();
+    const c = this.coach;
     return c ? c.firstName + ' ' + c.lastName : '—';
   });
 
@@ -78,14 +79,14 @@ export class CoachCalendarComponent {
 
   events = computed<CalendarEvent[]>(() => {
     const id = this.coachId();
-    const coach = this.coach();
+    const coach = this.coach;
     if (!coach) return [];
 
     const coachName = coach.firstName + ' ' + coach.lastName;
 
-    const personal: CalendarEvent[] = this.sessionSvc.getPersonalByCoachId(id).map((s) => {
+    const personal: CalendarEvent[] = this.sessionSvc.getPersonalByCoachIdRaw(id).map((s) => {
       const client = this.clientSvc.getById(s.clientId);
-      const room = this.roomSvc.getById(s.roomId);
+      const room = this.roomSvc.getByIdRaw(s.roomId);
       return {
         id: s.id,
         type: 'personal' as const,
@@ -97,12 +98,12 @@ export class CoachCalendarComponent {
         roomId: s.roomId,
         roomName: room ? room.roomType + ' (cap. ' + room.capacity + ')' : '—',
         clientId: s.clientId,
-        clientName: client ? client.firstName + ' ' + client.lastName : '—',
+        //clientName: client ? client.firstName + ' ' + client.lastName : '—',
       };
     });
 
-    const group: CalendarEvent[] = this.sessionSvc.getGroupByCoachId(id).map((s) => {
-      const room = this.roomSvc.getById(s.roomId);
+    const group: CalendarEvent[] = this.sessionSvc.getGroupByCoachIdRaw(id).map((s) => {
+      const room = this.roomSvc.getByIdRaw(s.roomId);
       return {
         id: s.id,
         type: 'group' as const,

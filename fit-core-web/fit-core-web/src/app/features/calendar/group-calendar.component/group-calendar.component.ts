@@ -11,6 +11,7 @@ import { CalendarEvent } from '../shared/calendar-event.model';
 import { weekStart, addDays } from '../shared/calendar.utils';
 import { WeekGridComponent } from '../shared/week-grid.component/week-grid.component';
 import { EventDetailDialogComponent } from '../event-detail-dialog.component/event-detail-dialog.component';
+import { Coach, GroupTrainingSession } from '../../../core/models/types';
 
 @Component({
   selector: 'app-group-calendar',
@@ -39,9 +40,9 @@ export class GroupCalendarComponent {
   });
 
   events = computed<CalendarEvent[]>(() =>
-    this.sessionSvc.getAllGroup().map((s) => {
-      const coach = this.coachSvc.getById(s.coachId);
-      const room = this.roomSvc.getById(s.roomId);
+    this.sessionSvc.getAllGroupRaw().map((s) => {
+      const coach = this.coachSvc.getByIdRaw(s.coachId);
+      const room = this.roomSvc.getByIdRaw(s.roomId);
       return {
         id: s.id,
         type: 'group' as const,

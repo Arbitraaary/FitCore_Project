@@ -1,20 +1,19 @@
-﻿using FitCore_API.Abstractions.Services;
-using FitCore_API.DTOs;
-using FitCore_API.Services;
+﻿using FitCore_API.DTOs;
+using FitCoreAPI.Abstractions.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FitCore_API.Controllers;
+namespace FitCoreAPI.Controllers;
 
 //[Authorize]
 [Route("[controller]/[action]")]
 [ApiController]
 public class AuthController: BaseController
 {
-    private readonly AuthService _authService;
-    private readonly UserService _userService;
+    private readonly IAuthService _authService;
+    private readonly IUserService _userService;
     private readonly IJwtService _jwtService;
-    public AuthController(AuthService authService, UserService userService, IJwtService jwtService)
+    public AuthController(IAuthService authService, IUserService userService, IJwtService jwtService)
     {
         _authService = authService;
         _userService = userService;
@@ -27,16 +26,16 @@ public class AuthController: BaseController
         var user = await _authService.VerifyUserAsync(loginRequest, ct);
         var token = _jwtService.GenerateJwtToken(user);
         var cookieOptions = _jwtService.GetCookieOptions();
-        HttpContext.Response.Cookies.Append("AuthCookie", token, cookieOptions);
+        HttpContext.Response.Cookies.Append("auth_cookie", token, cookieOptions);
         return Ok(user);
     });
     
     [HttpPost]
-    //[Authorize(Roles = "Manager, Admin")]
-    public async Task<ActionResult> RegisterCoach(string email, CancellationToken ct) => await ExecuteSafely(async () =>
+    [Authorize(Roles = "Manager, Admin")]
+    public async Task<ActionResult> RegisterCoach([FromBody] CoachRegistrationDto dto, CancellationToken ct) => await ExecuteSafely(async () =>
     { 
-        //var userId = await _userService.RegisterCoachAsync(dto, ct);
-        return Ok(email);
+        var userId = await _userService.RegisterCoachAsync(dto, ct);
+        return Ok(userId);
     });
     
     [HttpPost]

@@ -64,6 +64,17 @@
           }
         </mat-form-field>
 
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <mat-icon matPrefix>password</mat-icon>
+          <input matInput type="password" formControlName="password" />
+          @if (form.get('password')?.hasError('required') && form.get('password')?.touched) {
+            <mat-error>Password is required</mat-error>
+          } @else if (form.get('password')?.hasError('minlength') && form.get('password')?.touched) {
+            <mat-error>Password must be at least 6 characters long</mat-error>
+          }
+        </mat-form-field>
+
         <div class="form-actions">
           <button (click)="cancel()" mat-stroked-button type="button">Cancel</button>
           <button [disabled]="loading()" color="primary" mat-raised-button type="submit">

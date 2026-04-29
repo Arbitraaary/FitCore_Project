@@ -24,10 +24,10 @@ public class RoomRepository : IRoomRepository
         return await _dbContext.Rooms.ToListAsync(ct);
     }
 
-    public async Task<List<RoomModel>> GetByLocationIdAsync(Guid locationId, CancellationToken ct)
+    public async Task<List<RoomModel>> GetByLocationIdAsync(string locationName, CancellationToken ct)
     {
         return await _dbContext.Rooms
-            .Where(r => r.LocationId == locationId)
+            .Where(r => r.LocationName == locationName)
             .ToListAsync(ct);
     }
 
