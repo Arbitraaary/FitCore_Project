@@ -1,6 +1,6 @@
 ﻿namespace FitCoreAPI.DTOs;
 
-public record GroupSessionDto(
+public record GroupSessionWithCoachAndRoomDto(
     Guid Id,
     Guid CoachId,
     string CoachName,
@@ -11,5 +11,7 @@ public record GroupSessionDto(
     string Type,
     DateTime StartTime,
     DateTime EndTime ,
-    List<Guid> EnrolledClientIds
+    List<Guid> EnrolledClientIds,
+    CoachDto Coach,
+    RoomDto Room
     );

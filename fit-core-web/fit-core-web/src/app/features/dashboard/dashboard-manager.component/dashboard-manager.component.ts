@@ -49,7 +49,7 @@ export class DashboardManagerComponent implements OnInit {
       next: (result) => {
         this.personal.set(result);
         this.stats.set(this.computeStats());
-        this.upcomingSessions.set(this.computeUpcomingSessions());
+        this.upcomingSessions.set(this._computeUpcomingSessions());
       },
       error: (error) => {
         console.log(error);
@@ -59,7 +59,7 @@ export class DashboardManagerComponent implements OnInit {
     this.sessionSvc.getGroupByManager(this.user()!.id).subscribe({
       next: (result) => {
         this.group.set(result);
-        this.upcomingSessions.set(this.computeUpcomingSessions());
+        this.upcomingSessions.set(this._computeUpcomingSessions());
         this.stats.set(this.computeStats());
       },
       error: (error) => console.log(error)
@@ -148,7 +148,7 @@ export class DashboardManagerComponent implements OnInit {
   };
 
   // ── Upcoming sessions (next 5) ─────────────────────────────────────────────
-  computeUpcomingSessions() {
+  private _computeUpcomingSessions() {
     const today = new Date();
     const todayStr = today.toDateString();
     return [...this.personal(), ...this.group()]

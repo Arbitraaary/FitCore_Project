@@ -60,29 +60,12 @@
 
       <span class="topbar__spacer"></span>
 
-      <!-- Role switcher (demo) -->
-      <div class="topbar__role-switcher">
-        <span class="topbar__role-label">Role:</span>
-        <button [matMenuTriggerFor]="roleMenu" class="topbar__role-btn" mat-stroked-button>
-          {{ role() | titlecase }}
-          <mat-icon iconPositionEnd>expand_more</mat-icon>
-        </button>
-        <mat-menu #roleMenu>
-          <button  mat-menu-item><!--(click)="switchRole('manager')"-->
-            <mat-icon>manage_accounts</mat-icon>
-            Manager
-          </button>
-          <button mat-menu-item> <!--(click)="switchRole('coach')"-->
-            <mat-icon>sports</mat-icon>
-            Coach
-          </button>
-        </mat-menu>
-      </div>
-
       <!-- Avatar / user menu -->
-      <button [matMenuTriggerFor]="userMenu" class="topbar__avatar" mat-icon-button>
-        <span class="avatar">{{ initials() }}</span>
-      </button>
+      <div class="topbar__avatar">
+        <button [matMenuTriggerFor]="userMenu"  mat-icon-button>
+          <span class="avatar">{{ initials() }}</span>
+        </button>
+      </div>
       <mat-menu #userMenu>
         <div class="user-menu-header">
           <strong>{{ fullName() }}</strong>

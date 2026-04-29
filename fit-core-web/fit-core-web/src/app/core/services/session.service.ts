@@ -4,6 +4,8 @@ import {
   GroupTrainingSession,
   Coach,
   ClientMembership,
+  GroupTrainingSessionWithCoachAndRoom,
+  PersonalTrainingSessionWithCoachAndRoom,
 } from '../models/types';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
@@ -145,10 +147,35 @@ export class SessionService {
     });
     return sessions;
   }
+
   getAllGroup(): Observable<GroupTrainingSession[]> {
     return this.http.get<GroupTrainingSession[]>(`${this.groupApiUrl}/GetAllGroupSessions`, {
       withCredentials: true,
     });
+  }
+
+  getAllGroupWithCoachAndRoom(): Observable<GroupTrainingSessionWithCoachAndRoom[]> {
+    return this.http.get<GroupTrainingSessionWithCoachAndRoom[]>(`${this.groupApiUrl}/GetAllGroupSessionsWithCoachAndRoom`, {
+      withCredentials: true,
+    });
+  }
+
+  getAllGroupWithCoachAndRoomById(coachId: string): Observable<GroupTrainingSessionWithCoachAndRoom[]> {
+    return this.http.get<GroupTrainingSessionWithCoachAndRoom[]>(
+      `${this.groupApiUrl}/GetAllGroupSessionsWithCoachAndRoomById/${coachId}`,
+      {
+        withCredentials: true,
+      },
+    );
+  }
+
+  getAllPersonalWithCoachAndRoomById(coachId: string): Observable<PersonalTrainingSessionWithCoachAndRoom[]> {
+    return this.http.get<PersonalTrainingSessionWithCoachAndRoom[]>(
+      `${this.personalApiUrl}/GetAllPersonalSessionsWithCoachAndRoomById/${coachId}`,
+      {
+        withCredentials: true,
+      },
+    );
   }
 
   // ── Write ─────────────────────────────────────────────────────────────────
@@ -161,7 +188,7 @@ export class SessionService {
   }
 
   enrollClientInGroup(dto: CreateGroupEnrollmentDto): Observable<any> {
-    return this.http.post(`${this.clientApiUrl}/EnrollInGroup`, dto, { withCredentials: true });
+    return this.http.post(`${this.groupApiUrl}/EnrollInGroup`, dto, { withCredentials: true });
   }
 
   isClientEnrolledInGroupRaw(clientId: string, sessionId: string): boolean {

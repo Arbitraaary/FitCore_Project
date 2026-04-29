@@ -1,6 +1,7 @@
 ﻿using FitCore_API.Abstractions.Repositories;
 using FitCore_API.Context;
 using FitCore_API.Entities;
+using FitCoreAPI.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace FitCoreAPI.Repositories;
@@ -16,17 +17,25 @@ public class PersonalTrainingSessionRepository : IPersonalTrainingSessionReposit
 
     public async Task<PersonalTrainingSessionModel?> GetByIdAsync(Guid sessionId, CancellationToken ct)
     {
-        return await _dbContext.PersonalTrainingSessions.FindAsync([sessionId], ct);
+        return await _dbContext.PersonalTrainingSessions
+            .Include(pts => pts.Coach)
+            .ThenInclude(c => c.User)
+            .FirstAsync(pts => pts.Id == sessionId, ct);
     }
 
     public async Task<List<PersonalTrainingSessionModel>> GetAllAsync(CancellationToken ct)
     {
-        return await _dbContext.PersonalTrainingSessions.ToListAsync(ct);
+        return await _dbContext.PersonalTrainingSessions
+            .Include(pts => pts.Coach)
+            .ThenInclude(c => c.User)
+            .ToListAsync(ct);
     }
 
     public async Task<List<PersonalTrainingSessionModel>> GetByClientIdAsync(Guid clientId, CancellationToken ct)
     {
         return await _dbContext.PersonalTrainingSessions
+            .Include(pts => pts.Coach)
+            .ThenInclude(c => c.User)
             .Where(s => s.ClientId == clientId)
             .ToListAsync(ct);
     }
@@ -34,6 +43,8 @@ public class PersonalTrainingSessionRepository : IPersonalTrainingSessionReposit
     public async Task<List<PersonalTrainingSessionModel>> GetByCoachIdAsync(Guid coachId, CancellationToken ct)
     {
         return await _dbContext.PersonalTrainingSessions
+            .Include(pts => pts.Coach)
+            .ThenInclude(c => c.User)
             .Where(s => s.CoachId == coachId)
             .ToListAsync(ct);
     }
@@ -41,6 +52,8 @@ public class PersonalTrainingSessionRepository : IPersonalTrainingSessionReposit
     public async Task<List<PersonalTrainingSessionModel>> GetByRoomIdAsync(Guid roomId, CancellationToken ct)
     {
         return await _dbContext.PersonalTrainingSessions
+            .Include(pts => pts.Coach)
+            .ThenInclude(c => c.User)
             .Where(s => s.RoomId == roomId)
             .ToListAsync(ct);
     }
@@ -69,7 +82,23 @@ public class PersonalTrainingSessionRepository : IPersonalTrainingSessionReposit
 
     public async Task<List<PersonalTrainingSessionModel>> GetByLocationAsync(string locationName, CancellationToken ct)
     {
-        return await _dbContext.PersonalTrainingSessions.Include(pts => pts.Room)
+        return await _dbContext.PersonalTrainingSessions
+            .Include(pts => pts.Coach)
+            .ThenInclude(c => c.User)
+            .Include(pts => pts.Room)
             .Where(pts => pts.Room.LocationName == locationName).ToListAsync(ct);
+    }
+
+
+    public async Task<List<PersonalTrainingSessionModel>> GetAllWithCoachAndRoomById(Guid id, CancellationToken ct)
+    {
+        return await _dbContext.PersonalTrainingSessions
+            .Include(gts => gts.Coach)
+            .ThenInclude(c => c.User)
+            .Include(gts => gts.Coach.Location)
+            .Include(gts => gts.Room)
+            .Where(gts => gts.CoachId == id)
+            .ToListAsync(ct);
+        
     }
 }

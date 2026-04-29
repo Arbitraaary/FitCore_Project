@@ -24,26 +24,26 @@ export class DashboardCoachComponent implements OnInit {
   sessionSvc = inject(SessionService);
   user = computed(() => this.coachSvc.getMe());
   location = computed(() => this.coachSvc.getMyLocation());
-  personal = signal<PersonalTrainingSession[] | null>(null);
-  group = signal<GroupTrainingSession[] | null>(null);
-  upcomingSessions = signal<(PersonalTrainingSession | GroupTrainingSession)[]>([])
+  personal = signal<PersonalTrainingSession[]>([]);
+  group = signal<GroupTrainingSession[]>([]);
+  upcomingSessions = signal<(PersonalTrainingSession | GroupTrainingSession)[]>([]);
 
   ngOnInit() {
-    if(this.user() !== null){
+    if (this.user() !== null) {
       this.sessionSvc.getPersonalByCoachId(this.user()!.id).subscribe({
-        next: result => {
-          this.personal.set(result)
-          this.upcomingSessions.set(this.computeUpcomingSessions());
+        next: (result) => {
+          this.personal.set(result);
+          this.upcomingSessions.set(this._computeUpcomingSessions());
         },
-        error: error => {
+        error: (error) => {
           console.log(error);
-        }
+        },
       });
 
       this.sessionSvc.getGroupByCoachId(this.user()!.id).subscribe({
         next: (result) => {
           this.group.set(result);
-          this.upcomingSessions.set(this.computeUpcomingSessions());
+          this.upcomingSessions.set(this._computeUpcomingSessions());
         },
         error: (error) => {
           console.log(error);
@@ -59,12 +59,12 @@ export class DashboardCoachComponent implements OnInit {
     return 'Good evening';
   });
 
-  computeUpcomingSessions(){
-    const now = new Date();
-    return [...this.personal() ?? [], ...this.group() ?? []]
-      .filter((s) => s.startTime >= now)
-      .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
-      .slice(0, 5);
+  private _computeUpcomingSessions() {
+    const today = new Date();
+    const todayStr = today.toDateString();
+    return [...this.personal(), ...this.group()]
+      .filter((s) => new Date(s.startTime).toDateString() === todayStr)
+      .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
   }
 
   quickLinks = computed(() => [

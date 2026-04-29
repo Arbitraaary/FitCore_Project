@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using FitCore_API.Entities;
 
-namespace FitCore_API.Entities.Auxiliary;
+namespace FitCoreAPI.Entities.Auxiliary;
 
 
 [Table("group_training_session_client", Schema = "public")]

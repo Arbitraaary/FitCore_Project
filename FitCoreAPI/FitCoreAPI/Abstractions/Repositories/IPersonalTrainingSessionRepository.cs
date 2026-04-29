@@ -1,4 +1,5 @@
 ﻿using FitCore_API.Entities;
+using FitCoreAPI.DTOs;
 
 namespace FitCore_API.Abstractions.Repositories;
 
@@ -13,4 +14,5 @@ public interface IPersonalTrainingSessionRepository
     public Task UpdateAsync(PersonalTrainingSessionModel session, CancellationToken ct);
     public Task DeleteAsync(Guid sessionId, CancellationToken ct);
     public Task<List<PersonalTrainingSessionModel>> GetByLocationAsync(string locationName, CancellationToken ct);
+    public Task<List<PersonalTrainingSessionModel>> GetAllWithCoachAndRoomById(Guid id, CancellationToken ct);
 }

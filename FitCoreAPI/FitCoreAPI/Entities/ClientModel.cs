@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using FitCore_API.Entities.Auxiliary;
+using FitCoreAPI.Entities.Auxiliary;
 
 namespace FitCore_API.Entities;
 

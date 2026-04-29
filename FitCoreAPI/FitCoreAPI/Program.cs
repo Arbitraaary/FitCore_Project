@@ -48,6 +48,7 @@ builder.Services.AddScoped<IClientMembershipRepository, ClientMembershipReposito
 builder.Services.AddScoped<IEquipmentRepository, EquipmentRepository>();
 builder.Services.AddScoped<IPersonalTrainingSessionRepository, PersonalTrainingSessionRepository>();
 builder.Services.AddScoped<IGroupTrainingSessionRepository, GroupTrainingSessionRepository>();
+builder.Services.AddScoped<IGroupTrainingSessionClientRepository, GroupTrainingSessionClientRepository>();
 
 builder.Services.AddHttpContextAccessor();
 

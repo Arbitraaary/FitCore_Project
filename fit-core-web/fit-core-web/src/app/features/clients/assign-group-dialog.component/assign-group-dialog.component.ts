@@ -56,25 +56,20 @@ export class AssignGroupDialogComponent implements OnInit {
       (s) =>
         !q ||
         s.name.toLowerCase().includes(q) ||
-        this.coachName(s.coachId).toLowerCase().includes(q),
+        s.coachName.toLowerCase().includes(q),
     );
   });
 
   isEnrolled(sessionId: string): boolean {
-    return this.sessionSvc.isClientEnrolledInGroupRaw(this.data.clientId, sessionId);
+    return this.allSessions().find(s => s.id == sessionId)!.enrolledClientIds.find(ec => ec == this.data.clientId) !== undefined;
   }
 
   isFull(sessionId: string): boolean {
-    return this.sessionSvc.isGroupFullRaw(sessionId);
+    return this.spotsLeft(this.allSessions().find(s => s.id == sessionId)!) == 0;
   }
 
   spotsLeft(s: GroupTrainingSession): number {
     return s.capacity - s.enrolledClientIds.length;
-  }
-
-  coachName(coachId: string): string {
-    const c = this.coachSvc.getByIdRaw(coachId);
-    return c ? `${c.firstName} ${c.lastName}` : '—';
   }
 
   select(id: string) {
@@ -85,16 +80,20 @@ export class AssignGroupDialogComponent implements OnInit {
 
   enroll() {
     if (!this.selected()) return;
-    const ok = this.sessionSvc.enrollClientInGroup({
+    this.sessionSvc.enrollClientInGroup({
       clientId: this.data.clientId,
       sessionId: this.selected()!,
+    }).subscribe({
+      next: data => {
+        this.success.set(true);
+        setTimeout(() => this.dialogRef.close(true), 1100);
+      },
+      error: error => {
+        this.errorMsg.set('Could not enroll — session may be full.');
+        return;
+      }
     });
-    if (!ok) {
-      this.errorMsg.set('Could not enroll — session may be full.');
-      return;
-    }
-    this.success.set(true);
-    setTimeout(() => this.dialogRef.close(true), 1100);
+
   }
 
   close() {

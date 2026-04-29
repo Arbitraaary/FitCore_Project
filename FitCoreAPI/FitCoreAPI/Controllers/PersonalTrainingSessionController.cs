@@ -23,6 +23,15 @@ public class PersonalTrainingSessionController: BaseController
             await _personalTrainingSessionService.CreatePersonalSession(dto, ct);
             return Ok();
         });
+
+        
+    [HttpGet("{id}")]
+    public async Task<ActionResult<List<GroupSessionWithCoachAndRoomDto>>> GetAllPersonalSessionsWithCoachAndRoomById(Guid id, CancellationToken ct) =>
+        await ExecuteSafely(async () =>
+        {
+            var groupSessions = await _personalTrainingSessionService.GetAllPersonalSessionWithCoachAndRoomById(id, ct);
+            return Ok(groupSessions);
+        });
     
 
     [HttpGet("{id}")]

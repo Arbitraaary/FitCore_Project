@@ -22,6 +22,7 @@ public class PersonalTrainingSessionService: IPersonalTrainingSessionService
             ps.Id,
             ps.ClientId,
             ps.CoachId,
+            $"{ps.Coach.User.FirstName}  {ps.Coach.User.LastName}",
             ps.RoomId,
             "Personal",
             ps.Name,
@@ -38,6 +39,7 @@ public class PersonalTrainingSessionService: IPersonalTrainingSessionService
             personalSession.Id,
             personalSession.ClientId,
             personalSession.CoachId,
+            $"{personalSession.Coach.User.FirstName}  {personalSession.Coach.User.LastName}",
             personalSession.RoomId,
             "Personal",
             personalSession.Name,
@@ -53,6 +55,7 @@ public class PersonalTrainingSessionService: IPersonalTrainingSessionService
             ps.Id,
             ps.ClientId,
             ps.CoachId,
+            $"{ps.Coach.User.FirstName}  {ps.Coach.User.LastName}",
             ps.RoomId,
             "Personal",
             ps.Name,
@@ -68,6 +71,7 @@ public class PersonalTrainingSessionService: IPersonalTrainingSessionService
             s.Id,
             s.ClientId,
             s.CoachId,
+            $"{s.Coach.User.FirstName}  {s.Coach.User.LastName}",
             s.RoomId,
             "Personal",
             s.Name,
@@ -91,19 +95,49 @@ public class PersonalTrainingSessionService: IPersonalTrainingSessionService
         await _personalTrainingSessionRepository.AddAsync(personalModel, ct);
     }
 
-    // public async Task CreatePersonalSessionAsync(PersonalSessionDto dto,
-    //     CancellationToken ct)
-    // {
-    //     var personalSession = new PersonalTrainingSessionModel(
-    //         Id = Guid.NewGuid(),
-    //         ClientId = dto.ClientId,
-    //         CoachId: dto.CoachId,
-    //         RoomId: dto.RoomId,
-    //         Name: dto.Name,
-    //         StartTime: dto.StartTime,
-    //         EndTime: dto.EndTime
-    //     );
-    //     
-    //     await _personalTrainingSessionRepository.AddAsync(personalSession, ct);
-    // }
+    public async Task<List<PersonalSessionWithCoachAndRoomDto>> GetAllPersonalSessionWithCoachAndRoomById(Guid id, CancellationToken ct)
+    {
+        var personalSessions = await _personalTrainingSessionRepository.GetAllWithCoachAndRoomById(id, ct);
+        return personalSessions.Select(personalSession =>
+        {
+            var locationModel = personalSession.Coach.Location;
+            var locationDto = new LocationDto(
+                locationModel.Name,
+                locationModel.Address
+            );
+
+            var coachModel = personalSession.Coach;
+            var coachDto = new CoachDto(
+                coachModel.UserId,
+                coachModel.User.FirstName,
+                coachModel.User.LastName,
+                coachModel.User.Email,
+                coachModel.User.PhoneNumber,
+                coachModel.User.UserType.ToString(),
+                coachModel.Specialization.ToString(),
+                locationDto
+            );
+
+            var roomModel = personalSession.Room;
+            var roomDto = new RoomDto(
+                roomModel.Id,
+                roomModel.LocationName,
+                roomModel.RoomType.ToString(),
+                roomModel.Capacity
+            );
+
+            return new PersonalSessionWithCoachAndRoomDto(
+                personalSession.Id,
+                personalSession.ClientId,
+                personalSession.CoachId,
+                $"{coachDto.FirstName} {coachDto.LastName}",
+                personalSession.RoomId,
+                "Personal",
+                personalSession.Name,
+                personalSession.StartDate,
+                personalSession.EndDate,
+                coachDto,
+                roomDto);
+        }).ToList();
+    }
 }

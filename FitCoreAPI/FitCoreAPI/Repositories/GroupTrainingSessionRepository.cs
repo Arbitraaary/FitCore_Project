@@ -17,18 +17,28 @@ public class GroupTrainingSessionRepository : IGroupTrainingSessionRepository
 
     public async Task<GroupTrainingSessionModel?> GetByIdAsync(Guid sessionId, CancellationToken ct)
     {
-        return await _dbContext.GroupTrainingSessions.FindAsync([sessionId], ct);
+        return await _dbContext.GroupTrainingSessions
+            .Include(gts => gts.ClientGroupSessions)
+            .Include(gts => gts.Coach)
+            .ThenInclude(c => c.User)
+            .FirstAsync(gts => gts.Id == sessionId, ct);
     }
 
     public async Task<List<GroupTrainingSessionModel>> GetAllAsync(CancellationToken ct)
     {
-        return await _dbContext.GroupTrainingSessions.ToListAsync(ct);
+        return await _dbContext.GroupTrainingSessions
+            .Include(gts => gts.ClientGroupSessions)
+            .Include(gts => gts.Coach)
+            .ThenInclude(c => c.User)
+            .ToListAsync(ct);
     }
 
     public async Task<List<GroupTrainingSessionModel>> GetByClientIdAsync(Guid clientId, CancellationToken ct)
     {
         return await _dbContext.GroupTrainingSessions
-            .Include(s => s.ClientGroupSessions)
+            .Include(gts => gts.ClientGroupSessions)
+            .Include(gts => gts.Coach)
+            .ThenInclude(c => c.User)
             .Where(s => s.ClientGroupSessions.Any(cgs => cgs.ClientId == clientId))
             .AsNoTracking()
             .ToListAsync(ct);
@@ -36,6 +46,9 @@ public class GroupTrainingSessionRepository : IGroupTrainingSessionRepository
     public async Task<List<GroupTrainingSessionModel>> GetByCoachIdAsync(Guid coachId, CancellationToken ct)
     {
         return await _dbContext.GroupTrainingSessions
+            .Include(gts => gts.ClientGroupSessions)
+            .Include(gts => gts.Coach)
+            .ThenInclude(c => c.User)
             .Where(s => s.CoachId == coachId)
             .ToListAsync(ct);
     }
@@ -87,7 +100,33 @@ public class GroupTrainingSessionRepository : IGroupTrainingSessionRepository
 
     public async Task<List<GroupTrainingSessionModel>> GetByLocationAsync(string locationName, CancellationToken ct)
     {
-        return await _dbContext.GroupTrainingSessions.Include(gts => gts.ClientGroupSessions).Include(gts => gts.Room)
-            .Where(gts => gts.Room.LocationName == locationName).ToListAsync(ct);
+        return await _dbContext.GroupTrainingSessions
+            .Include(gts => gts.ClientGroupSessions)
+            .Include(gts => gts.Coach)
+            .ThenInclude(c => c.User)
+            .Include(gts => gts.Room)
+            .Where(gts => gts.Room.LocationName == locationName)
+            .ToListAsync(ct);
+    }
+
+    public async Task<List<GroupTrainingSessionModel>> GetAllWithCoachAndRoom(CancellationToken ct)
+    {
+        return await _dbContext.GroupTrainingSessions
+            .Include(s => s.ClientGroupSessions)
+            .Include(gts => gts.Coach).ThenInclude(c => c.User).Include(gts => gts.Coach.Location)
+            .Include(gts => gts.Room)
+            .ToListAsync(ct);
+    }
+
+    public async Task<List<GroupTrainingSessionModel>> GetAllWithCoachAndRoomById(Guid id, CancellationToken ct)
+    {
+        return await _dbContext.GroupTrainingSessions
+            .Include(s => s.ClientGroupSessions)
+            .Include(gts => gts.Coach)
+            .ThenInclude(c => c.User)
+            .Include(gts => gts.Coach.Location)
+            .Include(gts => gts.Room).Where(gts => gts.CoachId == id)
+            .ToListAsync(ct);
+        
     }
 }

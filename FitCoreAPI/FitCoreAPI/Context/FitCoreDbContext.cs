@@ -1,5 +1,6 @@
 ﻿using FitCore_API.Entities;
 using FitCore_API.Entities.Auxiliary;
+using FitCoreAPI.Entities.Auxiliary;
 
 namespace FitCore_API.Context;
 using Microsoft.EntityFrameworkCore;

@@ -14,4 +14,6 @@ public interface IGroupTrainingSessionRepository
     public Task DeleteAsync(Guid sessionId, CancellationToken ct);
     public Task<bool> IsFullAsync(Guid sessionId, CancellationToken ct);
     Task<List<GroupTrainingSessionModel>> GetByLocationAsync(string locationName, CancellationToken ct);
+    Task<List<GroupTrainingSessionModel>> GetAllWithCoachAndRoom(CancellationToken ct);
+    Task<List<GroupTrainingSessionModel>> GetAllWithCoachAndRoomById(Guid id, CancellationToken ct);
 }

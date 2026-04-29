@@ -110,6 +110,16 @@ export interface GroupTrainingSession {
   type: string;
 }
 
+export interface GroupTrainingSessionWithCoachAndRoom extends GroupTrainingSession {
+  coach: Coach,
+  room: Room,
+}
+
+export interface PersonalTrainingSessionWithCoachAndRoom extends PersonalTrainingSession {
+  coach: Coach,
+  room: Room,
+}
+
 // ─── Auth ────────────────────────────────────────────────────────────────────
 
 export interface AuthUser {

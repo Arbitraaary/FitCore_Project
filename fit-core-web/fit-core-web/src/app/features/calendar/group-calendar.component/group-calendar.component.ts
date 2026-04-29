@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,13 +20,14 @@ import { Coach, GroupTrainingSession } from '../../../core/models/types';
   templateUrl: './group-calendar.component.html',
   styleUrls: ['./group-calendar.component.scss'],
 })
-export class GroupCalendarComponent {
+export class GroupCalendarComponent implements OnInit {
   private sessionSvc = inject(SessionService);
   private coachSvc = inject(CoachService);
   private roomSvc = inject(RoomService);
   private dialog = inject(MatDialog);
 
   currentWeekStart = signal(weekStart(new Date()));
+  events = signal<CalendarEvent[]>([]);
 
   weekLabel = computed(() => {
     const start = this.currentWeekStart();
@@ -39,26 +40,35 @@ export class GroupCalendarComponent {
     );
   });
 
-  events = computed<CalendarEvent[]>(() =>
-    this.sessionSvc.getAllGroupRaw().map((s) => {
-      const coach = this.coachSvc.getByIdRaw(s.coachId);
-      const room = this.roomSvc.getByIdRaw(s.roomId);
-      return {
-        id: s.id,
-        type: 'group' as const,
-        name: s.name,
-        coachId: s.coachId,
-        coachName: coach ? coach.firstName + ' ' + coach.lastName : '—',
-        startTime: new Date(s.startTime),
-        endTime: new Date(s.endTime),
-        roomId: s.roomId,
-        roomName: room ? room.roomType + ' (cap. ' + room.capacity + ')' : '—',
-        capacity: s.capacity,
-        enrolledCount: s.enrolledClientIds.length,
-        description: s.description,
-      };
-    }),
-  );
+  ngOnInit() {
+    this._updateCalendarEvents();
+  }
+
+  private _updateCalendarEvents(){
+    this.sessionSvc.getAllGroupWithCoachAndRoom().subscribe({
+      next: (gts) => {
+        let newData = gts.map((s) : CalendarEvent => {
+          return {
+            id: s.id,
+            type: 'group' as const,
+            name: s.name,
+            coachId: s.coachId,
+            coachName: s.coach ? s.coach.firstName + ' ' + s.coach.lastName : '—',
+            startTime: new Date(s.startTime),
+            endTime: new Date(s.endTime),
+            roomId: s.roomId,
+            roomName: s.room ? s.room.roomType + ' (cap. ' + s.room.capacity + ')' : '—',
+            capacity: s.capacity,
+            enrolledCount: s.enrolledClientIds.length,
+            description: s.description,
+          }
+        });
+
+        this.events.set(newData);
+      },
+      error: (err) => console.log(err),
+    });
+  }
 
   prevWeek() {
     this.currentWeekStart.update((d) => addDays(d, -7));

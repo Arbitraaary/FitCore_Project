@@ -24,12 +24,38 @@ public class GroupTrainingSessionController: BaseController
             return Ok(groupSessions);
         });
 
+        
+    [HttpGet]
+    public async Task<ActionResult<List<GroupSessionWithCoachAndRoomDto>>> GetAllGroupSessionsWithCoachAndRoom(CancellationToken ct) =>
+        await ExecuteSafely(async () =>
+        {
+            var groupSessions = await _groupTrainingSessionService.GetAllGroupSessionWithCoachAndRoom(ct);
+            return Ok(groupSessions);
+        });
+
+        
+    [HttpGet("{id}")]
+    public async Task<ActionResult<List<GroupSessionWithCoachAndRoomDto>>> GetAllGroupSessionsWithCoachAndRoomById(Guid id, CancellationToken ct) =>
+        await ExecuteSafely(async () =>
+        {
+            var groupSessions = await _groupTrainingSessionService.GetAllGroupSessionWithCoachAndRoomById(id, ct);
+            return Ok(groupSessions);
+        });
+
     [HttpGet("{id}")]
     public async Task<ActionResult<GroupSessionDto>> GetGroupSession(Guid id, CancellationToken ct) =>
         await ExecuteSafely(async () =>
         {
             var groupSession = await _groupTrainingSessionService.GetGroupSessionById(id, ct);
             return Ok(groupSession);
+        });
+
+    [HttpPost]
+    public async Task<ActionResult> EnrollInGroup([FromBody]CreateGroupEnrollmentDto dto, CancellationToken ct) =>
+        await ExecuteSafely(async () =>
+        {
+            await _groupTrainingSessionService.EnrollClient(dto, ct);
+            return Ok();
         });
     
     [HttpGet("{id}")]

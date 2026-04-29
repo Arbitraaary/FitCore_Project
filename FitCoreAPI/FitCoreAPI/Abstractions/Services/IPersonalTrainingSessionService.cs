@@ -10,4 +10,5 @@ public interface IPersonalTrainingSessionService
     Task<List<PersonalSessionDto>> GetPersonalSessionsByCoachIdAsync(Guid coachId, CancellationToken ct);
     Task<List<PersonalSessionDto>> GetPersonalSessionByLocation(string locationName, CancellationToken ct);
     Task CreatePersonalSession(CreatePersonalSessionDto dto, CancellationToken ct);
+    Task<List<PersonalSessionWithCoachAndRoomDto>> GetAllPersonalSessionWithCoachAndRoomById(Guid id, CancellationToken ct);
 }

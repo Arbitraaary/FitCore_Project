@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using FitCore_API.Entities.Auxiliary;
+using FitCoreAPI.Entities.Auxiliary;
 
 namespace FitCore_API.Entities;
 
@@ -41,7 +42,7 @@ public class GroupTrainingSessionModel
     [Column("end_time")]
     public DateTime EndTime { get; set; }
     
-    public CoachModel? Coach { get; set; }
+    public CoachModel Coach { get; set; }
     public RoomModel Room { get; set; } = null!;
     public ICollection<OccupiedEquipmentModel> OccupiedEquipments { get; set; } = new List<OccupiedEquipmentModel>();
     public ICollection<GroupTrainingSessionClient> ClientGroupSessions { get; set; } = new List<GroupTrainingSessionClient>();

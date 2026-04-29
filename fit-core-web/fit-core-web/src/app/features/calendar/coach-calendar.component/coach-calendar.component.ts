@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, input, effect } from '@angular/core';
+import { Component, inject, signal, computed, input, effect, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -35,29 +35,33 @@ import { UserService } from '../../../core/services/user.service';
   templateUrl: './coach-calendar.component.html',
   styleUrls: ['./coach-calendar.component.scss'],
 })
-export class CoachCalendarComponent {
+export class CoachCalendarComponent implements OnInit {
   // Route param bound via withComponentInputBinding()
   coachId = input.required<string>();
 
   private sessionSvc = inject(SessionService);
   private coachSvc = inject(CoachService);
-  private clientSvc = inject(ClientService);
-  private roomSvc = inject(RoomService);
   private userSvc = inject(UserService);
   private dialog = inject(MatDialog);
 
   isManager = this.userSvc.isManager;
-
   currentWeekStart = signal(weekStart(new Date()));
-
   // Filter: 'all' | 'personal' | 'group'
   filter = signal<'all' | 'personal' | 'group'>('all');
-
-  coach = this.coachSvc.getByIdRaw(this.coachId.toString());
-  coachFullName = computed(() => {
-    const c = this.coach;
-    return c ? c.firstName + ' ' + c.lastName : '—';
-  });
+  groupEvents = signal<CalendarEvent[]>([]);
+  personalEvents = signal<CalendarEvent[]>([]);
+  events = signal<CalendarEvent[]>([]);
+  coach = signal<Coach | null>(null);
+  ngOnInit() {
+    this.coachSvc.getById(this.coachId()).subscribe({
+      next: data => {
+        this.coach.set(data)
+      },
+      error: error => console.log(error),
+    });
+    this._updateGroupCalendarEvents();
+    this._updatePersonalCalendarEvents();
+  }
 
   weekLabel = computed(() => {
     const start = this.currentWeekStart();
@@ -77,51 +81,58 @@ export class CoachCalendarComponent {
     return ['personal', 'group'];
   });
 
-  events = computed<CalendarEvent[]>(() => {
-    const id = this.coachId();
-    const coach = this.coach;
-    if (!coach) return [];
+  private _setAllEvents(){
+    this.events.set([...this.personalEvents(), ...this.groupEvents()]);
+  }
+  private _updateGroupCalendarEvents() {
+    this.sessionSvc.getAllGroupWithCoachAndRoomById(this.coachId()).subscribe({
+      next: (gts) => {
+        let newData = gts.map((s): CalendarEvent => {
+          return {
+            id: s.id,
+            type: 'group' as const,
+            name: s.name,
+            coachId: s.coachId,
+            coachName: s.coach ? s.coach.firstName + ' ' + s.coach.lastName : '—',
+            startTime: new Date(s.startTime),
+            endTime: new Date(s.endTime),
+            roomId: s.roomId,
+            roomName: s.room ? s.room.roomType + ' (cap. ' + s.room.capacity + ')' : '—',
+            capacity: s.capacity,
+            enrolledCount: s.enrolledClientIds.length,
+            description: s.description,
+          };
+        });
 
-    const coachName = coach.firstName + ' ' + coach.lastName;
-
-    const personal: CalendarEvent[] = this.sessionSvc.getPersonalByCoachIdRaw(id).map((s) => {
-      const client = this.clientSvc.getById(s.clientId);
-      const room = this.roomSvc.getByIdRaw(s.roomId);
-      return {
-        id: s.id,
-        type: 'personal' as const,
-        name: s.name,
-        coachId: id,
-        coachName,
-        startTime: new Date(s.startTime),
-        endTime: new Date(s.endTime),
-        roomId: s.roomId,
-        roomName: room ? room.roomType + ' (cap. ' + room.capacity + ')' : '—',
-        clientId: s.clientId,
-        //clientName: client ? client.firstName + ' ' + client.lastName : '—',
-      };
+        this.groupEvents.set(newData);
+        this._setAllEvents();
+      },
+      error: (err) => console.log(err),
     });
+  }
+  private _updatePersonalCalendarEvents() {
+    this.sessionSvc.getAllPersonalWithCoachAndRoomById(this.coachId()).subscribe({
+      next: (gts) => {
+        let newData = gts.map((s): CalendarEvent => {
+          return {
+            id: s.id,
+            type: 'personal' as const,
+            name: s.name,
+            coachId: s.coachId,
+            coachName: s.coach ? s.coach.firstName + ' ' + s.coach.lastName : '—',
+            startTime: new Date(s.startTime),
+            endTime: new Date(s.endTime),
+            roomId: s.roomId,
+            roomName: s.room ? s.room.roomType + ' (cap. ' + s.room.capacity + ')' : '—'
+          };
+        });
 
-    const group: CalendarEvent[] = this.sessionSvc.getGroupByCoachIdRaw(id).map((s) => {
-      const room = this.roomSvc.getByIdRaw(s.roomId);
-      return {
-        id: s.id,
-        type: 'group' as const,
-        name: s.name,
-        coachId: id,
-        coachName,
-        startTime: new Date(s.startTime),
-        endTime: new Date(s.endTime),
-        roomId: s.roomId,
-        roomName: room ? room.roomType + ' (cap. ' + room.capacity + ')' : '—',
-        capacity: s.capacity,
-        enrolledCount: s.enrolledClientIds.length,
-        description: s.description,
-      };
+        this.personalEvents.set(newData);
+        this._setAllEvents();
+      },
+      error: (err) => console.log(err),
     });
-
-    return [...personal, ...group];
-  });
+  }
 
   totalThisWeek = computed(() => {
     const ws = this.currentWeekStart();

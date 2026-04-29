@@ -113,11 +113,6 @@ export class ClientDetailComponent implements OnInit {
     return this.membershipSvc.getMembershipTypeName(typeId, this.membershipTypes());
   }
 
-  coachName(coachId: string): string {
-    const c = this.coachSvc.getByIdRaw(coachId);
-    return c ? `${c.firstName} ${c.lastName}` : '—';
-  }
-
   statusClass(status: string): string {
     return status === 'active'
       ? 'chip--success'
